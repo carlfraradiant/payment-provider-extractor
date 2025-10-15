@@ -1,6 +1,7 @@
-hyperbrowser
-python-dotenv
-flask
-flask-socketio
-Pillow
+hyperbrowser>=0.1.0
+python-dotenv>=0.19.0
+flask>=2.0.0
+flask-socketio>=5.0.0
+Pillow>=9.0.0
+gunicorn>=20.0.0
 
