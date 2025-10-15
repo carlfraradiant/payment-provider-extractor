@@ -70,7 +70,14 @@ app.post('/api/analyze', async (req, res) => {
         // Start analysis in background
         setImmediate(async () => {
             try {
+                // Log environment variables being used (for debugging)
+                console.log("🔍 Vercel Runtime Environment Check:");
+                console.log(`HYPERBROWSER_API_KEY (first 5 chars): ${process.env.HYPERBROWSER_API_KEY ? process.env.HYPERBROWSER_API_KEY.substring(0, 5) + '...' : 'NOT SET'}`);
+                console.log(`OPENAI_API_KEY (first 5 chars): ${process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'NOT SET'}`);
+                console.log(`NODE_ENV: ${process.env.NODE_ENV || 'NOT SET'}`);
+                
                 const extractor = new CheckoutURLExtractor(2); // 2 minute timeout
+                console.log("✅ CheckoutURLExtractor initialized successfully");
                 const progressCallback = new WebProgressCallback(sessionId);
                 
                 // Override the call method to emit to Socket.IO

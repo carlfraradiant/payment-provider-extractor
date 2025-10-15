@@ -7,9 +7,23 @@ class CheckoutURLExtractor {
      */
     
     constructor(timeoutMinutes = 2) {
-        this.hb = new Hyperbrowser({
-            apiKey: process.env.HYPERBROWSER_API_KEY
-        });
+        const apiKey = process.env.HYPERBROWSER_API_KEY;
+        if (!apiKey) {
+            console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
+            throw new Error("HYPERBROWSER_API_KEY environment variable is required.");
+        }
+        
+        // Log the API key being used (first few characters for security)
+        console.log(`🔑 CheckoutURLExtractor initializing with Hyperbrowser API Key (first 5 chars): ${apiKey.substring(0, 5)}...`);
+        
+        try {
+            this.hb = new Hyperbrowser({ apiKey });
+            console.log("✅ Hyperbrowser client initialized successfully");
+        } catch (error) {
+            console.error("❌ Failed to initialize Hyperbrowser client:", error.message);
+            throw error;
+        }
+        
         this.timeoutMinutes = timeoutMinutes;
     }
 
