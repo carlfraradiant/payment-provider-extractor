@@ -22,7 +22,7 @@ class CheckoutURLExtractor {
                 progressCallback("🚀 Starting checkout URL extraction...");
             }
 
-            const taskDescription = this._getTaskDescription();
+            const taskDescription = this._getTaskDescription(websiteUrl);
             const sessionOptions = this._getSessionOptions();
 
             const result = await this._runWithSessionTimeout(
@@ -48,13 +48,14 @@ class CheckoutURLExtractor {
     /**
      * Get the detailed task description for the browser agent
      */
-    _getTaskDescription() {
+    _getTaskDescription(websiteUrl) {
         return `
-You are an AI web browsing agent specialized in e-commerce checkout analysis. Your task is to navigate through an e-commerce website, add a product to the cart, and reach the final checkout page to extract payment provider information.
+You are an AI web browsing agent specialized in e-commerce checkout analysis. Your task is to navigate to the website: ${websiteUrl}, add a product to the cart, and reach the final checkout page to extract payment provider information.
 
 CRITICAL: Follow these steps EXACTLY in order:
 
-STEP 1 - COOKIE ACCEPTANCE (CRITICAL)
+STEP 1 - INITIAL NAVIGATION & COOKIE ACCEPTANCE (CRITICAL)
+- Go to the website: ${websiteUrl}
 - Look for and click "Accept", "Accept All", "I Accept", or similar cookie consent buttons
 - If you see cookie banners, popups, or consent dialogs, click the accept button
 - If there are multiple cookie options, choose "Accept All" or "Accept Essential Cookies"
@@ -171,10 +172,15 @@ Website URL: ${websiteUrl}
                 progressCallback("🤖 Starting browser automation task...");
             }
 
-            // Start the browser use task
+            // Start the browser use task with optimized settings
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
-                sessionId: sessionId
+                sessionId: sessionId,
+                maxSteps: 50, // Allow more steps for complex checkout flows
+                maxFailures: 5, // Allow some failures before giving up
+                useVision: true, // Enable vision for better page understanding
+                validateOutput: true, // Validate the output format
+                keepBrowserOpen: false // Close browser after task completion
             });
 
             // Race between the task and timeout
@@ -193,7 +199,7 @@ Website URL: ${websiteUrl}
             const screenshotData = await this._captureCheckoutScreenshot(sessionId, progressCallback);
 
             // Parse the agent response
-            const parsedResult = this._parseAgentResponse(result.data.final_result);
+            const parsedResult = this._parseAgentResponse(result.data?.finalResult);
 
             // Add screenshot data if available
             if (screenshotData) {

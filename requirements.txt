@@ -1,7 +1,0 @@
-flask==2.3.3
-flask-socketio==5.3.6
-hyperbrowser
-python-dotenv
-Pillow
-gunicorn==21.2.0
-eventlet

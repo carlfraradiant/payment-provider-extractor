@@ -410,19 +410,30 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const url = document.getElementById('websiteUrl').value;
-            const detailed = document.getElementById('detailedAnalysis').checked;
+            const urlInput = document.getElementById('websiteUrl');
+            const detailedInput = document.getElementById('detailedAnalysis');
             
-            if (!url.trim()) {
+            if (!urlInput) {
+                showError('Website URL input not found');
+                return;
+            }
+            
+            const url = urlInput.value;
+            const detailed = detailedInput ? detailedInput.checked : false;
+            
+            if (!url || !url.trim()) {
                 showError('Please enter a valid URL');
                 return;
             }
 
+            console.log('Starting analysis with URL:', url);
             startAnalysis(url, detailed);
         });
 
         async function startAnalysis(url, detailed) {
             try {
+                console.log('startAnalysis called with:', { url, detailed });
+                
                 // Update UI
                 analyzeBtn.disabled = true;
                 btnText.textContent = '🔄 Analyzing...';
@@ -439,6 +450,8 @@
                 // Add initial log entry
                 addLogEntry('🚀 Starting analysis...', new Date().toISOString());
 
+                console.log('Making API request to /api/analyze');
+                
                 // Start analysis
                 const response = await fetch('/api/analyze', {
                     method: 'POST',
@@ -451,7 +464,9 @@
                     })
                 });
 
+                console.log('API response status:', response.status);
                 const data = await response.json();
+                console.log('API response data:', data);
 
                 if (!response.ok) {
                     throw new Error(data.error || 'Failed to start analysis');

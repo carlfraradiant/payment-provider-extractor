@@ -1,8 +1,0 @@
-# Environment variables for local development
-# Copy this file to .env and fill in your actual API keys
-
-HYPERBROWSER_API_KEY=your_hyperbrowser_api_key_here
-OPENAI_API_KEY=your_openai_api_key_here
-SECRET_KEY=your-secret-key-change-this-in-production
-FLASK_ENV=development
-PORT=5000

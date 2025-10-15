@@ -1,118 +1,144 @@
 # 🛒 Payment Provider Checkout URL Extractor
 
-An AI-powered web browsing agent that automatically navigates e-commerce websites, adds products to cart, and extracts checkout URLs to identify payment providers.
+AI-powered e-commerce analysis tool that automatically navigates through checkout processes to identify payment providers.
 
-## ✨ Features
+## 🚀 Features
 
-- **🤖 AI-Powered Navigation**: Uses Hyperbrowser AI to autonomously navigate e-commerce sites
-- **🛍️ Smart Product Selection**: Automatically finds and adds products to cart
-- **💳 Payment Provider Detection**: Identifies all available payment methods
-- **📸 Screenshot Capture**: Provides live session URLs for visual verification
-- **⏱️ Session Management**: Built-in timeout protection to prevent excessive credit usage
-- **🌐 Web Interface**: Beautiful, real-time web interface for easy use
-- **🔌 API Ready**: REST API endpoints for integration with other systems
-- **📊 Real-time Progress**: Live streaming of analysis progress
+- **Automated Checkout Navigation**: AI agent navigates through e-commerce websites
+- **Payment Provider Detection**: Identifies all available payment methods
+- **Real-time Progress Tracking**: Live updates via WebSocket connections
+- **Screenshot Capture**: Live session URLs for visual verification
+- **Timeout Protection**: 2-minute limit to prevent excessive credit usage
+- **Modern Web Interface**: Beautiful, responsive UI with real-time updates
+
+## 🛠️ Technology Stack
+
+- **Backend**: Node.js + Express.js
+- **Real-time**: Socket.io for WebSocket connections
+- **AI Agent**: Hyperbrowser SDK for web automation
+- **Frontend**: HTML5 + CSS3 + JavaScript
+- **Deployment**: Vercel (optimized for Node.js)
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- Hyperbrowser API key
+- Git
 
 ## 🚀 Quick Start
 
-### 1. Installation
-
+### 1. Clone the Repository
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/payment-provider-extractor.git
+git clone https://github.com/carlfraradiant/payment-provider-extractor.git
 cd payment-provider-extractor
-
-# Install dependencies
-python3 setup.py
 ```
 
-### 2. Configuration
-
+### 2. Install Dependencies
 ```bash
-# Copy the config template
-cp config.py.template config.py
-
-# Edit config.py with your API keys
-nano config.py
+npm install
 ```
 
-### 3. Usage
-
-#### Web Interface (Recommended)
+### 3. Set Up Environment Variables
 ```bash
-python3 start_web_interface.py
-# Open http://localhost:5001 in your browser
+cp env_template_nodejs.txt .env
 ```
 
-#### Command Line Interface
+Edit `.env` and add your API keys:
+```env
+HYPERBROWSER_API_KEY=your_hyperbrowser_api_key_here
+NODE_ENV=development
+PORT=3000
+```
+
+### 4. Run Locally
 ```bash
-# Single URL analysis
-python3 main.py --url "https://example-shop.com" --detailed
-
-# Interactive mode
-python3 main.py
+npm start
 ```
+
+Visit `http://localhost:3000` to access the web interface.
+
+## 🌐 Web Interface
+
+The application provides a modern web interface where you can:
+
+1. **Enter Website URL**: Input any e-commerce website URL
+2. **Start Analysis**: Click "Start Analysis" to begin the process
+3. **Real-time Progress**: Watch live updates as the AI navigates the site
+4. **View Results**: See checkout URL, payment providers, and screenshots
 
 ## 🔧 API Endpoints
 
-### Web Interface
-- `GET /` - Main web interface
+- `GET /` - Web interface
 - `POST /api/analyze` - Start website analysis
 - `GET /api/session/<id>` - Get session status
 - `GET /api/sessions` - List all sessions
+- `GET /health` - Health check
+- `GET /test` - Test endpoint
 
-### REST API (Coming Soon)
-- `POST /api/v1/analyze` - Analyze single URL
-- `POST /api/v1/batch-analyze` - Analyze multiple URLs
-- `GET /api/v1/status/<id>` - Get analysis status
-- `GET /api/v1/results/<id>` - Get analysis results
+## 📸 Screenshot Feature
 
-## 📋 Requirements
-
-- Python 3.9+
-- Hyperbrowser API key
-- Internet connection
-
-## 🛠️ Dependencies
-
-- `hyperbrowser` - AI web browsing
-- `flask` - Web framework
-- `flask-socketio` - Real-time communication
-- `python-dotenv` - Environment variables
-- `Pillow` - Image processing
-
-## 📸 Screenshots
-
-The tool captures live session URLs that show the exact checkout page state, ensuring all JavaScript widgets and payment forms are fully rendered.
+The tool captures live session URLs that allow you to:
+- View the current state of the checkout page
+- See all JavaScript widgets fully rendered
+- Identify payment providers visually
+- Take manual screenshots if needed
 
 ## ⏱️ Timeout Protection
 
-Built-in 2-minute timeout with proper session management prevents excessive credit usage by automatically stopping Hyperbrowser sessions.
-
-## 🔒 Security
-
-- API keys are stored in local config files
-- No sensitive data is logged or transmitted
-- Session management ensures proper cleanup
+- **2-minute limit**: Prevents excessive credit usage
+- **Automatic session cleanup**: Stops Hyperbrowser sessions on timeout
+- **Credit protection**: Ensures you don't exceed your API limits
 
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
-```bash
-# Install Vercel CLI
-npm i -g vercel
 
-# Deploy
-vercel
+1. **Connect to Vercel**: Import your GitHub repository
+2. **Set Environment Variables**:
+   - `HYPERBROWSER_API_KEY`
+   - `NODE_ENV=production`
+3. **Deploy**: Vercel automatically detects Node.js and deploys
+
+### Manual Deployment
+
+```bash
+# Build (no build step required)
+npm run build
+
+# Start production server
+npm start
 ```
 
-### Docker
-```bash
-# Build image
-docker build -t payment-extractor .
+## 🔍 How It Works
 
-# Run container
-docker run -p 5001:5001 payment-extractor
+1. **Cookie Acceptance**: Automatically accepts cookie consent dialogs
+2. **Product Discovery**: Navigates through the website to find products
+3. **Add to Cart**: Selects and adds a product to the shopping cart
+4. **Cart Navigation**: Explicitly clicks cart button to go to cart page
+5. **Checkout Process**: Clicks checkout button to reach final checkout page
+6. **Data Extraction**: Extracts checkout URL and identifies payment providers
+7. **Screenshot Capture**: Provides live session URL for visual verification
+
+## 🛡️ Error Handling
+
+- **Robust Error Recovery**: Handles popups, modals, and navigation issues
+- **Session Management**: Proper cleanup of browser sessions
+- **Timeout Protection**: Prevents runaway processes
+- **User Feedback**: Clear error messages and progress updates
+
+## 📊 Example Output
+
+```json
+{
+  "checkout_url": "https://shop.example.com/checkout",
+  "payment_providers": ["PayPal", "Stripe", "Apple Pay"],
+  "product_added": "Blue T-Shirt - Size M",
+  "website_name": "Example Shop",
+  "screenshot": {
+    "live_url": "https://hyperbrowser.ai/session/abc123",
+    "status": "live_url_available"
+  }
+}
 ```
 
 ## 🤝 Contributing
@@ -120,7 +146,8 @@ docker run -p 5001:5001 payment-extractor
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Submit a pull request
+4. Test thoroughly
+5. Submit a pull request
 
 ## 📄 License
 
@@ -128,16 +155,15 @@ MIT License - see LICENSE file for details
 
 ## 🆘 Support
 
-- Create an issue for bugs or feature requests
-- Check the documentation for common questions
-- Join our community discussions
+- **Issues**: Report bugs via GitHub Issues
+- **Documentation**: Check the code comments for detailed explanations
+- **API Docs**: [Hyperbrowser Documentation](https://docs.hyperbrowser.ai/)
 
-## 🔗 Links
+## 🎯 Version History
 
-- [Hyperbrowser Documentation](https://docs.hyperbrowser.ai/)
-- [Live Demo](https://your-demo-url.vercel.app)
-- [API Documentation](https://your-api-docs.vercel.app)
+- **v2.0.0**: Complete migration to Node.js + Vercel
+- **v1.0.0**: Original Python + Flask version
 
 ---
 
-Made with ❤️ for e-commerce analysis
+**Built with ❤️ using Node.js, Express, Socket.io, and Hyperbrowser**
