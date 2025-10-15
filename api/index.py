@@ -7,17 +7,12 @@ def home():
     return jsonify({
         'message': 'Payment Provider Extractor API is working!',
         'status': 'healthy',
-        'version': '1.0.2',
-        'deployment': 'api/index.py',
-        'entry_point': 'api/index.py'
+        'version': '1.0.3'
     })
 
 @app.route('/test')
 def test():
-    return jsonify({
-        'message': 'Test endpoint working from api/index.py!',
-        'endpoints': ['/', '/test', '/health']
-    })
+    return jsonify({'message': 'Test endpoint working!'})
 
 @app.route('/health')
 def health():
@@ -27,7 +22,7 @@ def health():
 def handler(request):
     return app(request.environ, lambda status, headers: None)
 
-# WSGI entry point
+# WSGI entry point  
 def application(environ, start_response):
     return app(environ, start_response)
 
