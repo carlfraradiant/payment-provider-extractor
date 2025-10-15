@@ -1,1 +1,6 @@
-# No external dependencies needed for basic Vercel function
+flask==2.3.3
+flask-socketio==5.3.6
+hyperbrowser
+python-dotenv
+Pillow
+gunicorn==21.2.0
