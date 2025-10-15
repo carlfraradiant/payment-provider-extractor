@@ -14,7 +14,14 @@ from checkout_agent import CheckoutURLExtractor
 
 app = Flask(__name__, template_folder='templates')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
-socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Configure SocketIO for production
+socketio = SocketIO(
+    app, 
+    cors_allowed_origins="*",
+    logger=True,
+    engineio_logger=True
+)
 
 # Store active sessions
 active_sessions = {}
@@ -134,3 +141,6 @@ def test_endpoint():
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
     socketio.run(app, host='0.0.0.0', port=port, debug=False)
+else:
+    # This is for Gunicorn
+    application = socketio
