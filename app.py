@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Minimal Vercel-compatible Flask application
+Vercel-compatible Flask application
 """
 
 import os
@@ -125,9 +125,15 @@ def test_endpoint():
         ]
     }), 200
 
-# Vercel handler
+# Vercel handler - THIS IS THE KEY FIX
 def handler(request):
+    """Vercel serverless function handler"""
     return app(request.environ, lambda status, headers: None)
+
+# This is the entry point Vercel looks for
+def application(environ, start_response):
+    """WSGI application entry point"""
+    return app(environ, start_response)
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
