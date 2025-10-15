@@ -1,23 +1,35 @@
-#!/usr/bin/env python3
-"""
-Vercel serverless function entry point
-"""
+from flask import Flask, jsonify
 
-import sys
-import os
+app = Flask(__name__)
 
-# Add the parent directory to the Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+@app.route('/')
+def home():
+    return jsonify({
+        'message': 'Payment Provider Extractor API is working!',
+        'status': 'healthy',
+        'version': '1.0.2',
+        'deployment': 'api/index.py',
+        'entry_point': 'api/index.py'
+    })
 
-from web_app import app
+@app.route('/test')
+def test():
+    return jsonify({
+        'message': 'Test endpoint working from api/index.py!',
+        'endpoints': ['/', '/test', '/health']
+    })
 
-# This is the entry point for Vercel
+@app.route('/health')
+def health():
+    return jsonify({'status': 'healthy'})
+
+# Vercel entry point
 def handler(request):
-    return app(request.environ, start_response)
+    return app(request.environ, lambda status, headers: None)
 
-def start_response(status, headers):
-    pass
+# WSGI entry point
+def application(environ, start_response):
+    return app(environ, start_response)
 
-# For Vercel's Python runtime
-if __name__ == "__main__":
-    app.run()
+if __name__ == '__main__':
+    app.run(debug=True)
