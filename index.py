@@ -7,7 +7,8 @@ def home():
     return jsonify({
         'message': 'Payment Provider Extractor API is working!',
         'status': 'healthy',
-        'version': '1.0.0'
+        'version': '1.0.1',
+        'deployment': 'latest'
     })
 
 @app.route('/test')
