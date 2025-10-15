@@ -8,7 +8,12 @@ import io
 from PIL import Image
 from hyperbrowser import AsyncHyperbrowser
 from hyperbrowser.models import StartBrowserUseTaskParams, CreateSessionParams
-from config import HYPERBROWSER_API_KEY
+
+# Get API key from environment variables (for Render deployment)
+HYPERBROWSER_API_KEY = os.environ.get('HYPERBROWSER_API_KEY')
+
+if not HYPERBROWSER_API_KEY:
+    raise ValueError("HYPERBROWSER_API_KEY environment variable is required")
 
 class CheckoutURLExtractor:
     """
