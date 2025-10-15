@@ -1,1 +1,1 @@
-flask==2.3.3
+# No external dependencies needed for basic Vercel function
