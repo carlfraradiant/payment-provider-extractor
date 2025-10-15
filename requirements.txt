@@ -1,0 +1,6 @@
+hyperbrowser
+python-dotenv
+flask
+flask-socketio
+Pillow
+
