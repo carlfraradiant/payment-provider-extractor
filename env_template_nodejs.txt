@@ -1,0 +1,6 @@
+# Environment variables for Node.js version
+# Copy this file to .env and fill in your actual API keys
+
+HYPERBROWSER_API_KEY=your_hyperbrowser_api_key_here
+NODE_ENV=development
+PORT=3000

@@ -1,0 +1,36 @@
+{
+  "name": "payment-provider-extractor",
+  "version": "2.0.0",
+  "description": "AI-powered e-commerce checkout analysis with Hyperbrowser",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "build": "echo 'No build step required'",
+    "vercel-build": "echo 'No build step required'"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "socket.io": "^4.7.2",
+    "@hyperbrowser/sdk": "^0.66.0",
+    "dotenv": "^16.3.1",
+    "cors": "^2.8.5",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "hyperbrowser",
+    "e-commerce",
+    "checkout",
+    "payment-providers",
+    "ai",
+    "automation"
+  ],
+  "author": "Carl Sorensen",
+  "license": "MIT"
+}
