@@ -6,7 +6,7 @@ class CheckoutURLExtractor {
      * adds products to cart, and extracts the checkout URL.
      */
     
-    constructor(timeoutMinutes = 2) {
+    constructor(timeoutMinutes = 1) {
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -64,52 +64,63 @@ class CheckoutURLExtractor {
      */
     _getTaskDescription(websiteUrl) {
         return `
-You are an AI web browsing agent specialized in e-commerce checkout analysis. Your task is to navigate to the website: ${websiteUrl}, add a product to the cart, and reach the final checkout page to extract payment provider information.
+You are a FAST and EFFICIENT e-commerce checkout agent. Your goal is to quickly navigate to ${websiteUrl}, add ANY product to cart, and reach the checkout page to extract the URL and payment providers.
 
-CRITICAL: Follow these steps EXACTLY in order:
+SPEED IS CRITICAL - Complete this task in under 60 seconds. Be decisive and take the fastest path.
 
-STEP 1 - INITIAL NAVIGATION & COOKIE ACCEPTANCE (CRITICAL)
-- Go to the website: ${websiteUrl}
-- Look for and click "Accept", "Accept All", "I Accept", or similar cookie consent buttons
-- If you see cookie banners, popups, or consent dialogs, click the accept button
-- If there are multiple cookie options, choose "Accept All" or "Accept Essential Cookies"
-- If no cookie popup appears, proceed to step 2
+MULTILINGUAL SUPPORT: This website may be in English, French, Italian, German, or other languages. Look for these common terms:
 
-STEP 2 - PRODUCT DISCOVERY
-- Navigate through the website to find products
-- Look for product categories, featured products, or product listings
-- Browse the product catalog to identify available items
+ENGLISH: Accept, Add to Cart, Cart, Checkout, Buy Now, Proceed
+FRENCH: Accepter, Ajouter au panier, Panier, Commander, Acheter maintenant
+ITALIAN: Accetta, Aggiungi al carrello, Carrello, Checkout, Acquista ora
+GERMAN: Akzeptieren, In den Warenkorb, Warenkorb, Zur Kasse, Jetzt kaufen
+SPANISH: Aceptar, Añadir al carrito, Carrito, Finalizar compra, Comprar ahora
 
-STEP 3 - PRODUCT SELECTION
-- Click on a product to view its details
-- Look for "Add to Cart", "Add to Bag", "Buy Now", or similar buttons
-- If the product has options (size, color, quantity), select appropriate options
-- Click the "Add to Cart" button
+FAST EXECUTION STRATEGY:
 
-STEP 4 - CART VERIFICATION
-- Verify that the product has been added to the cart
-- Look for confirmation messages like "Added to cart", "Item added", or cart count updates
-- If the product wasn't added, try again or select a different product
+STEP 1 - QUICK NAVIGATION (5 seconds max)
+- Go to: ${websiteUrl}
+- IMMEDIATELY look for cookie popup and click ANY accept button (Accept/Accepter/Akzeptieren/etc.)
+- If no cookie popup, proceed immediately
 
-STEP 5 - CART BUTTON CLICK (CRITICAL)
-- Look for and click the cart icon, "View Cart", "Shopping Cart", or "Cart" button
-- This should take you to the cart/shopping bag page
-- Do NOT proceed to checkout from the product page - you MUST go to the cart page first
+STEP 2 - RAPID PRODUCT FINDING (10 seconds max)
+- Look for the FIRST visible product on the homepage
+- If no products on homepage, click "Shop", "Products", "Catalogue", or similar
+- Pick the FIRST available product you see
 
-STEP 6 - CHECKOUT BUTTON CLICK (CRITICAL - MUST REACH FINAL CHECKOUT)
-- On the cart page, look for "Checkout", "Proceed to Checkout", "Buy Now", or similar buttons
-- Click the checkout button to proceed to the checkout page
-- This should take you to the FINAL checkout page where payment information is collected
+STEP 3 - INSTANT ADD TO CART (5 seconds max)
+- Click the product
+- Look for "Add to Cart" button (in any language)
+- Click it immediately - don't worry about size/color options unless required
+- If it asks for required options, pick the first available option
 
-STEP 7 - URL EXTRACTION
-- Once you reach the final checkout page, extract the current URL
-- This URL should contain checkout, payment, or billing information
-- Report the URL as: CHECKOUT_URL: [the full URL]
+STEP 4 - DIRECT TO CHECKOUT (10 seconds max)
+- Look for cart icon or "Cart" button and click it
+- On cart page, immediately look for "Checkout", "Proceed", "Buy Now" button
+- Click it to go to checkout page
 
-STEP 8 - PAYMENT PROVIDER IDENTIFICATION
-- On the checkout page, identify all visible payment providers
-- Look for logos, text, or buttons indicating payment methods
-- Common providers include: PayPal, Stripe, Square, Apple Pay, Google Pay, Amazon Pay, Klarna, Afterpay, etc.
+STEP 5 - EXTRACT RESULTS (5 seconds max)
+- Once on checkout page, copy the URL
+- Look for payment provider logos (PayPal, Visa, Mastercard, Apple Pay, etc.)
+- Report results immediately
+
+CRITICAL RULES:
+- BE FAST - Don't overthink, take the first available option
+- BE DECISIVE - If you see a button that looks right, click it
+- SKIP OPTIONS - Don't spend time on size/color unless required
+- MULTILINGUAL - Recognize buttons in any language
+- TIMEOUT AWARENESS - You have 60 seconds total
+
+REPORT FORMAT:
+WEBSITE_NAME: [site name]
+PRODUCT_ADDED: [product name or "Yes"]
+CHECKOUT_URL: [full checkout URL]
+PAYMENT_PROVIDERS: [comma-separated list]
+STEPS_COMPLETED: [summary]
+ISSUES_ENCOUNTERED: [any problems]
+SCREENSHOT_READY: Yes
+
+START NOW - BE FAST AND EFFICIENT!
 - Report as: PAYMENT_PROVIDERS: [comma-separated list of providers]
 
 STEP 9 - SCREENSHOT CAPTURE (CRITICAL)
@@ -146,11 +157,16 @@ Website URL: ${websiteUrl}
     _getSessionOptions() {
         return {
             accept_cookies: true,
-            headless: false,
-            user_agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport_width: 1920,
-            viewport_height: 1080,
-            enable_web_recording: true
+            headless: true, // Use headless for faster execution
+            user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport_width: 1280, // Smaller viewport for faster rendering
+            viewport_height: 720,
+            enable_web_recording: true,
+            block_ads: true, // Block ads for faster loading
+            block_trackers: true, // Block trackers for faster loading
+            disable_images: false, // Keep images for better product recognition
+            disable_javascript: false, // Keep JS for modern e-commerce sites
+            timeout: 30000 // 30 second page load timeout
         };
     }
 
@@ -186,15 +202,17 @@ Website URL: ${websiteUrl}
                 progressCallback("🤖 Starting browser automation task...");
             }
 
-            // Start the browser use task with optimized settings
+            // Start the browser use task with optimized settings for speed
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 50, // Allow more steps for complex checkout flows
-                maxFailures: 5, // Allow some failures before giving up
+                maxSteps: 20, // Reduced steps for faster execution
+                maxFailures: 3, // Reduced failures for faster failure detection
                 useVision: true, // Enable vision for better page understanding
-                validateOutput: true, // Validate the output format
-                keepBrowserOpen: false // Close browser after task completion
+                validateOutput: false, // Disable validation for speed
+                keepBrowserOpen: false, // Close browser after task completion
+                maxActionsPerStep: 3, // Limit actions per step for speed
+                plannerInterval: 5 // Check progress more frequently
             });
 
             // Race between the task and timeout
@@ -213,7 +231,23 @@ Website URL: ${websiteUrl}
             const screenshotData = await this._captureCheckoutScreenshot(sessionId, progressCallback);
 
             // Parse the agent response
-            const parsedResult = this._parseAgentResponse(result.data?.finalResult);
+            let parsedResult = {};
+            if (result && result.data && result.data.finalResult) {
+                parsedResult = this._parseAgentResponse(result.data.finalResult);
+            } else if (result && result.finalResult) {
+                parsedResult = this._parseAgentResponse(result.finalResult);
+            } else {
+                // Fallback if no structured response
+                parsedResult = {
+                    website_name: 'Unknown',
+                    product_added: 'Unknown',
+                    checkout_url: null,
+                    payment_providers: [],
+                    steps_completed: 'Task completed but no structured response',
+                    issues_encountered: 'No structured response from agent',
+                    raw_response: JSON.stringify(result)
+                };
+            }
 
             // Add screenshot data if available
             if (screenshotData) {

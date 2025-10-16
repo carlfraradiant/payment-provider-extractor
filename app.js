@@ -76,7 +76,7 @@ app.post('/api/analyze', async (req, res) => {
                 console.log(`OPENAI_API_KEY (first 5 chars): ${process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'NOT SET'}`);
                 console.log(`NODE_ENV: ${process.env.NODE_ENV || 'NOT SET'}`);
                 
-                const extractor = new CheckoutURLExtractor(2); // 2 minute timeout
+                const extractor = new CheckoutURLExtractor(1); // 1 minute timeout for faster execution
                 console.log("✅ CheckoutURLExtractor initialized successfully");
                 const progressCallback = new WebProgressCallback(sessionId);
                 
