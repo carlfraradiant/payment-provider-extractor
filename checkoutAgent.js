@@ -79,26 +79,53 @@ POLISH: Akceptuj, Dodaj do koszyka, Koszyk, Do kasy, Kup teraz, Przejdź
 
 FAST EXECUTION STRATEGY:
 
-STEP 1 - LIGHTNING NAVIGATION (1 second max)
+STEP 1 - AGGRESSIVE POPUP ELIMINATION (2 seconds max)
 - Go to: ${websiteUrl}
-- IMMEDIATELY click ANY accept button if cookie popup appears
-- If no popup, proceed instantly
+- **CRITICAL**: IMMEDIATELY scan for and eliminate ALL popups:
+  * Cookie consent popups - click "Accept", "OK", "Allow", "I Agree", "Accept All"
+  * Email subscription popups - click "X", "Close", "No Thanks", "Skip"
+  * Newsletter popups - click "X", "Close", "Not Now", "Maybe Later"
+  * Age verification popups - click "Yes", "I'm 18+", "Enter", "Continue"
+  * Location permission popups - click "Allow", "OK", "Accept"
+  * Notification permission popups - click "Allow", "Block", "Not Now"
+  * Any overlay, modal, or popup - click "X", "Close", "Skip", "Dismiss"
+- **MULTILINGUAL POPUP CLOSING**:
+  * ENGLISH: Accept, OK, Allow, Close, X, Skip, Dismiss, No Thanks
+  * FRENCH: Accepter, OK, Autoriser, Fermer, X, Ignorer, Refuser
+  * ITALIAN: Accetta, OK, Consenti, Chiudi, X, Salta, Rifiuta
+  * GERMAN: Akzeptieren, OK, Erlauben, Schließen, X, Überspringen, Ablehnen
+  * SPANISH: Aceptar, OK, Permitir, Cerrar, X, Omitir, Rechazar
+  * POLISH: Akceptuj, OK, Zezwól, Zamknij, X, Pomiń, Odrzuć
+- **POPUP CLOSING STRATEGIES** (try in order):
+  1. Click any "Accept", "OK", "Allow" button
+  2. Click "X" in top-right corner
+  3. Click "Close", "Skip", "No Thanks" buttons
+  4. Press Escape key
+  5. Click outside the popup area
+  6. Look for small close buttons or icons
+- **IF POPUP PERSISTS**: Refresh page and try again
+- **ONLY PROCEED** when ALL popups are completely closed
 
 STEP 2 - INSTANT PRODUCT SELECTION (2 seconds max)
+- **FIRST**: Check for and close ANY new popups that appeared
 - Look for the FIRST visible product on homepage
 - If no products visible, click "Shop" or similar link
 - Pick the FIRST available product immediately
 
 STEP 3 - RAPID ADD TO CART (2 seconds max)
+- **FIRST**: Check for and close ANY new popups that appeared
 - Click the product
 - **CRITICAL: Ensure quantity is 1 before adding**
 - Click "Add to Cart" button immediately
 - Skip all optional selections (size, color, etc.)
+- **IF POPUP APPEARS**: Close it immediately before proceeding
 
 STEP 4 - DIRECT TO CHECKOUT (2 seconds max)
+- **FIRST**: Check for and close ANY new popups that appeared
 - Click cart icon or "Cart" button
 - Click "Checkout" or "Proceed" button immediately
 - Go directly to checkout page
+- **IF POPUP APPEARS**: Close it immediately before proceeding
 
 STEP 5 - EXTRACT CRITICAL INFO (1 second max)
 - Copy the checkout URL immediately
@@ -106,6 +133,7 @@ STEP 5 - EXTRACT CRITICAL INFO (1 second max)
 - Report results instantly
 
 CRITICAL RULES:
+- **POPUP ELIMINATION IS TOP PRIORITY** - Close ALL popups before doing ANYTHING else
 - **ULTIMATE PRIORITY**: Checkout URL and Payment Providers - extract these FIRST and FASTEST
 - BE LIGHTNING FAST - Complete entire task in 5-10 seconds total
 - BE DECISIVE - If you see a button that looks right, click it immediately
@@ -113,6 +141,8 @@ CRITICAL RULES:
 - MULTILINGUAL - Recognize buttons in any language (including Polish)
 - SINGLE ITEM ONLY - Add exactly 1 item to cart, never 2 or more
 - DIRECT PATH - Take the fastest route to checkout page
+- **POPUP PERSISTENCE**: If popups keep appearing, refresh page and start over
+- **POPUP BLOCKING**: Never proceed if ANY popup is visible - close it first
 
 REPORT FORMAT:
 WEBSITE_NAME: [site name]
@@ -132,7 +162,20 @@ STEP 9 - SCREENSHOT CAPTURE (CRITICAL)
 - Report as: SCREENSHOT_READY: true
 
 IMPORTANT RULES:
-- If you encounter popups, modals, or overlays, try to close them by clicking 'X', pressing Escape, or clicking outside
+- **POPUP ELIMINATION STRATEGY**:
+  * IMMEDIATELY scan for ANY popup, modal, overlay, or banner
+  * Try these actions in order: Accept/OK → X button → Close → Skip → Escape key → Click outside
+  * Look for small close buttons, X icons, or dismiss options
+  * If popup persists, refresh page and try again
+  * NEVER proceed with ANY popup visible
+- **POPUP TYPES TO CLOSE**:
+  * Cookie consent (Accept, OK, Allow, I Agree)
+  * Email subscription (X, Close, No Thanks, Skip)
+  * Newsletter signup (X, Close, Not Now, Maybe Later)
+  * Age verification (Yes, I'm 18+, Enter, Continue)
+  * Location permission (Allow, OK, Accept)
+  * Notification permission (Allow, Block, Not Now)
+  * Any overlay, modal, or popup
 - If a page doesn't load properly, refresh and try again
 - If you can't find products, try searching or browsing different categories
 - If checkout requires account creation, try to find guest checkout options
