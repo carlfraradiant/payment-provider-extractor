@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Gateway URL Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Body */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #16213e; /* Slightly lighter dark for container */
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            padding: 35px;
+            max-width: 900px;
+            width: 100%;
+            margin-top: 30px;
+            border: 1px solid #0f3460;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #e94560; /* Accent color */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #88d8b0;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Sections */
+        .input-section, .progress-section, .results-section, .error-section {
+            background-color: #0f3460; /* Darker blue for sections */
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e94560; /* Accent border */
+        }
+
+        h2, h3 {
+            color: #e94560;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 svg, h3 svg {
+            margin-right: 10px;
+        }
+
+        /* Form Group */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: 600;
+        }
+
+        input[type="url"], input[type="checkbox"] {
+            width: calc(100% - 22px); /* Adjust for padding and border */
+            padding: 12px;
+            border: 1px solid #1a1a2e;
+            border-radius: 6px;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+
+        input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        /* Button */
+        .btn {
+            background-color: #e94560; /* Accent color */
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background-color: #d43a52; /* Darker accent on hover */
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            background-color: #5a5a5a;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn svg {
+            margin-right: 10px;
+        }
+
+        /* Progress Log */
+        .progress-log {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #0f3460;
+        }
+
+        .progress-log p {
+            margin: 5px 0;
+            color: #c0c0c0;
+            font-size: 0.95em;
+        }
+
+        .progress-log p.status-update {
+            color: #88d8b0; /* Greenish for success/updates */
+        }
+
+        .progress-log p.error-message {
+            color: #ff6b6b; /* Red for errors */
+        }
+
+        /* Result Card */
+        .result-card {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 20px;
+            border: 1px solid #e94560;
+        }
+
+        .result-card p {
+            margin: 8px 0;
+            color: #e0e0e0;
+        }
+
+        .result-card strong {
+            color: #e94560;
+        }
+
+        .result-card a {
+            color: #88d8b0;
+            text-decoration: none;
+            word-break: break-all;
+        }
+
+        .result-card a:hover {
+            text-decoration: underline;
+        }
+
+        .screenshot-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #0f3460;
+        }
+
+        .screenshot-container {
+            background: #0f3460;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-top: 15px;
+        }
+
+        .screenshot-container p {
+            margin-bottom: 10px;
+            color: #e0e0e0;
+        }
+
+        .screenshot-container a {
+            color: #88d8b0;
+            font-weight: bold;
+        }
+
+        /* Error Section */
+        .error-section {
+            background-color: #e94560;
+            color: white;
+            border: none;
+        }
+
+        .error-section h3 {
+            color: white;
+        }
+
+        /* Loading Spinner */
+        .loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #fff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Feature highlights */
+        .feature-highlights {
+            background-color: #2e2e3e;
+            border-left: 4px solid #88d8b0;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .feature-highlights h4 {
+            color: #88d8b0;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .feature-highlights ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+
+        .feature-highlights li {
+            color: #e0e0e0;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Checkout URL Finder</a>
+        
+        <div class="header">
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-credit-card"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                Payment Gateway URL Extractor
+            </h1>
+            <p>AI-powered payment gateway extraction from checkout pages.</p>
+        </div>
+
+        <div class="feature-highlights">
+            <h4>🚀 What This Tool Does:</h4>
+            <ul>
+                <li><strong>Fast Form Filling:</strong> Automatically fills checkout forms with random data</li>
+                <li><strong>Payment Gateway Detection:</strong> Navigates to payment gateway pages</li>
+                <li><strong>URL Extraction:</strong> Captures the exact payment gateway URL</li>
+                <li><strong>Multilingual Support:</strong> Works with forms in multiple languages</li>
+                <li><strong>Popup Handling:</strong> Automatically closes popups and overlays</li>
+                <li><strong>10-20 Second Execution:</strong> Ultra-fast processing for quick results</li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div class="input-section">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-link"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    Payment Gateway Analysis
+                </h2>
+                <form id="paymentForm">
+                    <div class="form-group">
+                        <label for="checkoutUrl">Checkout Page URL:</label>
+                        <input type="url" id="checkoutUrl" placeholder="https://example-shop.com/checkout" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="detailedAnalysis" checked>
+                        <label for="detailedAnalysis">Include detailed analysis (payment gateway info, form data, etc.)</label>
+                    </div>
+                    <button type="submit" class="btn" id="extractBtn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/><polygon points="9 18s-1 1-4 4"/><polygon points="20 4s-1 1-4 4"/><polygon points="m15 9-1 1"/><polygon points="m8 16-1 1"/></svg>
+                        <span id="btnText">Extract Payment Gateway URL</span>
+                        <span id="btnSpinner" class="loading-spinner" style="display: none;"></span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="progress-section" id="progressSection" style="display: none;">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bar-chart-2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+                    Extraction Progress
+                </h3>
+                <div class="progress-log" id="progressLog"></div>
+            </div>
+
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-circle"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></svg>
+                    Payment Gateway Results
+                </h3>
+                <div class="result-card" id="resultCard">
+                    <!-- Results will be populated here -->
+                </div>
+            </div>
+
+            <div class="error-section" id="errorSection" style="display: none;">
+                <h3>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-circle"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>
+                    Error
+                </h3>
+                <p id="errorMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Initialize Socket.IO
+        let socket = null;
+        try {
+            if (typeof io !== 'undefined') {
+                socket = io();
+            }
+        } catch (error) {
+            console.log('Socket.io not available (production mode)');
+        }
+        let currentSessionId = null;
+
+        // DOM elements
+        const form = document.getElementById('paymentForm');
+        const extractBtn = document.getElementById('extractBtn');
+        const btnText = document.getElementById('btnText');
+        const btnSpinner = document.getElementById('btnSpinner');
+        const progressSection = document.getElementById('progressSection');
+        const progressLog = document.getElementById('progressLog');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultCard = document.getElementById('resultCard');
+        const errorSection = document.getElementById('errorSection');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Socket.IO event listeners
+        if (socket) {
+            socket.on('progress_update', (data) => {
+                if (data.session_id === currentSessionId) {
+                    addLogEntry(data.message, data.timestamp);
+                }
+            });
+
+            socket.on('analysis_complete', (data) => {
+                if (data.session_id === currentSessionId) {
+                    showResults(data.result);
+                    resetForm();
+                }
+            });
+
+            socket.on('analysis_error', (data) => {
+                if (data.session_id === currentSessionId) {
+                    showError(data.error);
+                    resetForm();
+                }
+            });
+        } else {
+            // Fallback polling for production mode (when Socket.io is not available)
+            let pollingInterval = null;
+            
+            function startPolling(sessionId) {
+                pollingInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch(`/api/payment/session/${sessionId}`);
+                        const session = await response.json();
+                        
+                        if (session.status === 'completed') {
+                            showResults(session.result);
+                            resetForm();
+                            clearInterval(pollingInterval);
+                        } else if (session.status === 'error') {
+                            showError(session.error);
+                            resetForm();
+                            clearInterval(pollingInterval);
+                        } else if (session.progress && session.progress.length > 0) {
+                            // Show latest progress message
+                            const latestProgress = session.progress[session.progress.length - 1];
+                            addLogEntry(latestProgress.message, latestProgress.timestamp);
+                        }
+                    } catch (error) {
+                        console.error('Polling error:', error);
+                    }
+                }, 2000); // Poll every 2 seconds
+            }
+            
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+            }
+            
+            // Store polling functions globally for use in form submission
+            window.startPolling = startPolling;
+            window.stopPolling = stopPolling;
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const urlInput = document.getElementById('checkoutUrl');
+            const detailedInput = document.getElementById('detailedAnalysis');
+            
+            if (!urlInput) {
+                showError('Checkout URL input not found');
+                return;
+            }
+
+            const checkoutUrl = urlInput.value.trim();
+            if (!checkoutUrl) {
+                showError('Please enter a checkout URL');
+                return;
+            }
+
+            // Validate URL format
+            try {
+                new URL(checkoutUrl);
+            } catch (error) {
+                showError('Please enter a valid URL');
+                return;
+            }
+
+            // Reset UI and show loading
+            resetUI();
+            showLoading(true);
+            progressSection.style.display = 'block';
+            addLogEntry(`Starting payment gateway extraction for: ${checkoutUrl}`, new Date().toISOString());
+
+            try {
+                const response = await fetch('/api/payment/extract', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        checkout_url: checkoutUrl, 
+                        detailed: detailedInput.checked 
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to start payment extraction');
+                }
+
+                // Store session ID
+                currentSessionId = data.session_id;
+                addLogEntry(`📱 Session started: ${data.session_id}`, new Date().toISOString());
+                
+                // Start polling if Socket.io is not available
+                if (!socket && window.startPolling) {
+                    window.startPolling(data.session_id);
+                }
+
+            } catch (error) {
+                console.error('Error starting payment extraction:', error);
+                showError(error.message);
+                resetForm();
+            }
+        });
+
+        function addLogEntry(message, timestamp) {
+            const logEntry = document.createElement('p');
+            logEntry.textContent = `${new Date(timestamp).toLocaleTimeString()}: ${message}`;
+            progressLog.appendChild(logEntry);
+            progressLog.scrollTop = progressLog.scrollHeight;
+        }
+
+        function showResults(result) {
+            resultsSection.style.display = 'block';
+            let html = `
+                <p><strong>Checkout URL:</strong> ${result.checkout_url || 'N/A'}</p>
+                <p><strong>Form Filled:</strong> ${result.form_filled || 'N/A'}</p>
+                <p><strong>Steps Completed:</strong> ${result.steps_completed || 'N/A'}</p>
+                <p><strong>Issues Encountered:</strong> ${result.issues_encountered || 'None'}</p>
+            `;
+
+            if (result.payment_url) {
+                html += `<p><strong>Payment Gateway URL:</strong> <a href="${result.payment_url}" target="_blank">${result.payment_url}</a></p>`;
+            } else {
+                html += `<p><strong>Payment Gateway URL:</strong> Not found</p>`;
+            }
+
+            if (result.payment_gateway && result.payment_gateway !== 'Unknown') {
+                html += `<p><strong>Payment Gateway Provider:</strong> ${result.payment_gateway}</p>`;
+            } else {
+                html += `<p><strong>Payment Gateway Provider:</strong> Not identified</p>`;
+            }
+
+            if (result.screenshot && result.screenshot.live_url) {
+                html += `
+                    <div class="screenshot-section">
+                        <h4>📸 Live Session View</h4>
+                        <p>You can view the current state of the payment gateway page in real-time:</p>
+                        <div class="screenshot-container">
+                            <p><strong>Live Session URL:</strong></p>
+                            <a href="${result.screenshot.live_url}" target="_blank">
+                                ${result.screenshot.live_url}
+                            </a>
+                            <p style="margin-top: 10px; font-size: 14px; color: #a0a0a0;">
+                                Click the link above to view the live payment gateway page in a new tab
+                            </p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="screenshot-section">
+                        <h4>📸 Payment Gateway Screenshot</h4>
+                        <div class="screenshot-container">
+                            <p>Live session URL not available.</p>
+                        </div>
+                    </div>
+                `;
+            }
+
+            resultCard.innerHTML = html;
+        }
+
+        function showError(message) {
+            errorSection.style.display = 'block';
+            errorMessage.textContent = message;
+            showLoading(false);
+        }
+
+        function showLoading(isLoading) {
+            extractBtn.disabled = isLoading;
+            btnText.style.display = isLoading ? 'none' : 'inline';
+            btnSpinner.style.display = isLoading ? 'inline-block' : 'none';
+        }
+
+        function resetUI() {
+            progressLog.innerHTML = '';
+            resultCard.innerHTML = '';
+            progressSection.style.display = 'none';
+            resultsSection.style.display = 'none';
+            errorSection.style.display = 'none';
+            errorMessage.textContent = '';
+            showLoading(false);
+        }
+
+        function resetForm() {
+            extractBtn.disabled = false;
+            btnText.textContent = 'Extract Payment Gateway URL';
+            btnSpinner.style.display = 'none';
+            currentSessionId = null;
+            
+            // Stop polling if it's running
+            if (window.stopPolling) {
+                window.stopPolling();
+            }
+        }
+
+        // Initial check for server connection
+        if (socket) {
+            socket.on('connect', () => {
+                console.log('Connected to Socket.IO server');
+            });
+
+            socket.on('disconnect', () => {
+                console.log('Disconnected from Socket.IO server');
+            });
+
+            socket.on('connect_error', (error) => {
+                console.error('Socket.IO connection error:', error);
+                showError(`Socket.IO connection error: ${error.message || error}`);
+            });
+        }
+    </script>
+</body>
+</html>
