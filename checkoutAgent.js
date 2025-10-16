@@ -6,7 +6,7 @@ class CheckoutURLExtractor {
      * adds products to cart, and extracts the checkout URL.
      */
     
-    constructor(timeoutMinutes = 1) {
+    constructor(timeoutMinutes = 0.25) { // 15 seconds timeout for 5-10 second target
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -66,50 +66,53 @@ class CheckoutURLExtractor {
         return `
 You are a FAST and EFFICIENT e-commerce checkout agent. Your goal is to quickly navigate to ${websiteUrl}, add ANY product to cart, and reach the checkout page to extract the URL and payment providers.
 
-SPEED IS CRITICAL - Complete this task in under 60 seconds. Be decisive and take the fastest path.
+SPEED IS CRITICAL - Complete this task in 5-10 seconds total. Be extremely fast and decisive.
 
-MULTILINGUAL SUPPORT: This website may be in English, French, Italian, German, or other languages. Look for these common terms:
+MULTILINGUAL SUPPORT: This website may be in English, French, Italian, German, Spanish, Polish, or other languages. Look for these common terms:
 
 ENGLISH: Accept, Add to Cart, Cart, Checkout, Buy Now, Proceed
 FRENCH: Accepter, Ajouter au panier, Panier, Commander, Acheter maintenant
 ITALIAN: Accetta, Aggiungi al carrello, Carrello, Checkout, Acquista ora
 GERMAN: Akzeptieren, In den Warenkorb, Warenkorb, Zur Kasse, Jetzt kaufen
 SPANISH: Aceptar, Añadir al carrito, Carrito, Finalizar compra, Comprar ahora
+POLISH: Akceptuj, Dodaj do koszyka, Koszyk, Do kasy, Kup teraz, Przejdź
 
 FAST EXECUTION STRATEGY:
 
-STEP 1 - QUICK NAVIGATION (5 seconds max)
+STEP 1 - LIGHTNING NAVIGATION (1 second max)
 - Go to: ${websiteUrl}
-- IMMEDIATELY look for cookie popup and click ANY accept button (Accept/Accepter/Akzeptieren/etc.)
-- If no cookie popup, proceed immediately
+- IMMEDIATELY click ANY accept button if cookie popup appears
+- If no popup, proceed instantly
 
-STEP 2 - RAPID PRODUCT FINDING (10 seconds max)
-- Look for the FIRST visible product on the homepage
-- If no products on homepage, click "Shop", "Products", "Catalogue", or similar
-- Pick the FIRST available product you see
+STEP 2 - INSTANT PRODUCT SELECTION (2 seconds max)
+- Look for the FIRST visible product on homepage
+- If no products visible, click "Shop" or similar link
+- Pick the FIRST available product immediately
 
-STEP 3 - INSTANT ADD TO CART (5 seconds max)
+STEP 3 - RAPID ADD TO CART (2 seconds max)
 - Click the product
-- Look for "Add to Cart" button (in any language)
-- Click it immediately - don't worry about size/color options unless required
-- If it asks for required options, pick the first available option
+- **CRITICAL: Ensure quantity is 1 before adding**
+- Click "Add to Cart" button immediately
+- Skip all optional selections (size, color, etc.)
 
-STEP 4 - DIRECT TO CHECKOUT (10 seconds max)
-- Look for cart icon or "Cart" button and click it
-- On cart page, immediately look for "Checkout", "Proceed", "Buy Now" button
-- Click it to go to checkout page
+STEP 4 - DIRECT TO CHECKOUT (2 seconds max)
+- Click cart icon or "Cart" button
+- Click "Checkout" or "Proceed" button immediately
+- Go directly to checkout page
 
-STEP 5 - EXTRACT RESULTS (5 seconds max)
-- Once on checkout page, copy the URL
-- Look for payment provider logos (PayPal, Visa, Mastercard, Apple Pay, etc.)
-- Report results immediately
+STEP 5 - EXTRACT CRITICAL INFO (1 second max)
+- Copy the checkout URL immediately
+- Scan for payment provider logos (PayPal, Visa, Mastercard, etc.)
+- Report results instantly
 
 CRITICAL RULES:
-- BE FAST - Don't overthink, take the first available option
-- BE DECISIVE - If you see a button that looks right, click it
-- SKIP OPTIONS - Don't spend time on size/color unless required
-- MULTILINGUAL - Recognize buttons in any language
-- TIMEOUT AWARENESS - You have 60 seconds total
+- **ULTIMATE PRIORITY**: Checkout URL and Payment Providers - extract these FIRST and FASTEST
+- BE LIGHTNING FAST - Complete entire task in 5-10 seconds total
+- BE DECISIVE - If you see a button that looks right, click it immediately
+- SKIP ALL OPTIONS - Don't spend time on size/color/quantity unless required
+- MULTILINGUAL - Recognize buttons in any language (including Polish)
+- SINGLE ITEM ONLY - Add exactly 1 item to cart, never 2 or more
+- DIRECT PATH - Take the fastest route to checkout page
 
 REPORT FORMAT:
 WEBSITE_NAME: [site name]
@@ -202,17 +205,18 @@ Website URL: ${websiteUrl}
                 progressCallback("🤖 Starting browser automation task...");
             }
 
-            // Start the browser use task with optimized settings for speed
+            // Start the browser use task with ultra-optimized settings for 5-10 second execution
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 20, // Reduced steps for faster execution
-                maxFailures: 3, // Reduced failures for faster failure detection
+                maxSteps: 10, // Ultra-reduced steps for 5-10 second execution
+                maxFailures: 2, // Minimal failures for speed
                 useVision: true, // Enable vision for better page understanding
-                validateOutput: false, // Disable validation for speed
+                validateOutput: false, // Disable validation for maximum speed
                 keepBrowserOpen: false, // Close browser after task completion
-                maxActionsPerStep: 3, // Limit actions per step for speed
-                plannerInterval: 5 // Check progress more frequently
+                maxActionsPerStep: 2, // Limit actions per step for speed
+                plannerInterval: 3, // Check progress very frequently
+                maxInputTokens: 2000 // Reduce token limit for faster processing
             });
 
             // Race between the task and timeout
