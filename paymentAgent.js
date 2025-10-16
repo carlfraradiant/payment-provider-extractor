@@ -120,137 +120,119 @@ class PaymentURLExtractor {
      */
     _getTaskDescription(checkoutUrl) {
         return `
-You are a SYSTEMATIC and THOROUGH payment gateway extraction agent. Your goal is to navigate to ${checkoutUrl}, methodically fill out ALL required checkout form fields, select payment method, and reach the payment gateway page to extract the payment URL.
+You are a PRECISE payment gateway extraction agent. Your goal: navigate to ${checkoutUrl}, fill forms with country-appropriate data, select card payment, click pay button, and extract the payment gateway URL.
 
-CRITICAL: You MUST fill out ALL required fields before clicking ANY payment buttons. Do not skip any steps.
+SIMPLE 4-STEP PROCESS:
+1. Close popups and fill contact/delivery fields
+2. Fill address details with correct country data
+3. Select "pay with card" option
+4. Click "pay now" button to reach payment gateway
 
-MULTILINGUAL SUPPORT: This checkout page may be in English, French, Italian, German, Spanish, Polish, Danish, or other languages. Look for these common terms:
-
-ENGLISH: Email, Address, Phone, City, Country, Card, Pay Now, Continue, Proceed, Complete Order, First Name, Last Name, Postal Code, Billing Address
-FRENCH: Email, Adresse, Téléphone, Ville, Pays, Carte, Payer maintenant, Continuer, Finaliser, Prénom, Nom, Code postal, Adresse de facturation
-ITALIAN: Email, Indirizzo, Telefono, Città, Paese, Carta, Paga ora, Continua, Completa ordine, Nome, Cognome, Codice postale, Indirizzo di fatturazione
-GERMAN: E-Mail, Adresse, Telefon, Stadt, Land, Karte, Jetzt bezahlen, Weiter, Bestellung abschließen, Vorname, Nachname, Postleitzahl, Rechnungsadresse
-SPANISH: Email, Dirección, Teléfono, Ciudad, País, Tarjeta, Pagar ahora, Continuar, Completar pedido, Nombre, Apellido, Código postal, Dirección de facturación
-POLISH: Email, Adres, Telefon, Miasto, Kraj, Karta, Zapłać teraz, Kontynuuj, Zakończ zamówienie, Imię, Nazwisko, Kod pocztowy, Adres rozliczeniowy
-DANISH: Mail, Adresse, Telefon, By, Land, Kort, Betal nu, Fortsæt, Fuldfør ordre, Fornavn, Efternavn, Postnummer, Faktureringsadresse
-
-SYSTEMATIC EXECUTION STRATEGY:
-
-STEP 1 - AGGRESSIVE POPUP ELIMINATION (2 seconds max)
+STEP 1 - CLOSE POPUPS & FILL BASIC INFO (3 seconds)
 - Go to: ${checkoutUrl}
-- **CRITICAL**: IMMEDIATELY scan for and eliminate ALL popups:
-  * Cookie consent popups - click "Accept", "OK", "Allow", "I Agree", "Accept All"
-  * Email subscription popups - click "X", "Close", "No Thanks", "Skip"
-  * Newsletter popups - click "X", "Close", "Not Now", "Maybe Later"
-  * Age verification popups - click "Yes", "I'm 18+", "Enter", "Continue"
-  * Location permission popups - click "Allow", "OK", "Accept"
-  * Notification permission popups - click "Allow", "Block", "Not Now"
-  * Any overlay, modal, or popup - click "X", "Close", "Skip", "Dismiss"
-- **MULTILINGUAL POPUP CLOSING**:
-  * ENGLISH: Accept, OK, Allow, Close, X, Skip, Dismiss, No Thanks
-  * FRENCH: Accepter, OK, Autoriser, Fermer, X, Ignorer, Refuser
-  * ITALIAN: Accetta, OK, Consenti, Chiudi, X, Salta, Rifiuta
-  * GERMAN: Akzeptieren, OK, Erlauben, Schließen, X, Überspringen, Ablehnen
-  * SPANISH: Aceptar, OK, Permitir, Cerrar, X, Omitir, Rechazar
-  * POLISH: Akceptuj, OK, Zezwól, Zamknij, X, Pomiń, Odrzuć
-  * DANISH: Accepter, OK, Tillad, Luk, X, Spring over, Afvis, Nej tak
-- **POPUP CLOSING STRATEGIES** (try in order):
-  1. Click any "Accept", "OK", "Allow" button
-  2. Click "X" in top-right corner
-  3. Click "Close", "Skip", "No Thanks" buttons
-  4. Press Escape key
-  5. Click outside the popup area
-  6. Look for small close buttons or icons
-- **IF POPUP PERSISTS**: Refresh page and try again
-- **ONLY PROCEED** when ALL popups are completely closed
+- **IMMEDIATELY close ALL popups**: Click "Accept", "OK", "Allow", "X", "Close", "Skip"
+- Fill basic fields:
+  * Email: "test@example.com"
+  * Marketing checkbox: Leave as is
+  * Country: Select the country shown or first option
 
-STEP 2 - SYSTEMATIC FORM FILLING (8 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- **SCAN THE ENTIRE PAGE** for all form fields and fill them systematically:
+STEP 2 - FILL ADDRESS WITH COUNTRY-APPROPRIATE DATA (5 seconds)
+**DETECT COUNTRY from page language/currency and use correct data:**
 
-**CONTACT INFORMATION SECTION:**
-- Email field: Fill with "test123@example.com" or "user456@test.com"
-- Marketing checkbox: Leave checked or uncheck as needed
+**DENMARK (Danish language/currency):**
+- Fornavn: "Lars"
+- Efternavn: "Hansen" 
+- Adresse: "Hovedgade 123"
+- Postnummer: "8200" (always 4 digits)
+- By: "Aarhus"
+- Telefon: "+45 12345678"
 
-**DELIVERY/SHIPPING INFORMATION SECTION:**
-- Country/Region dropdown: Select first available option or "Denmark", "United States", "Germany", etc.
-- First Name: Fill with "John", "Maria", "Giuseppe", "Hans", "Carlos", "Jan", "Lars"
-- Last Name: Fill with "Smith", "Garcia", "Rossi", "Müller", "Lopez", "Kowalski", "Hansen"
-- Company (if present): Fill with "Test Company" or leave empty if optional
-- Address: Fill with "123 Main St", "Via Roma 45", "Hauptstraße 12", "Calle Mayor 8", "Hovedgade 123"
-- Postal Code: Fill with "12345", "20100", "10115", "28001", "00-001", "2100"
-- City: Fill with "New York", "Milan", "Berlin", "Madrid", "Warsaw", "Copenhagen"
-- Phone: Fill with "1234567890", "+1234567890", "123-456-7890", "+45 12345678"
+**GERMANY (German language/currency):**
+- Vorname: "Hans"
+- Nachname: "Müller"
+- Adresse: "Hauptstraße 12"
+- PLZ: "10115" (5 digits)
+- Stadt: "Berlin"
+- Telefon: "+49 30 12345678"
 
-**BILLING ADDRESS SECTION:**
-- If "Same as delivery address" option exists: SELECT IT
-- If "Use different billing address" option exists: DO NOT SELECT IT (keep same address)
-- If separate billing fields appear: Fill them with same data as delivery
+**ITALY (Italian language/currency):**
+- Nome: "Giuseppe"
+- Cognome: "Rossi"
+- Indirizzo: "Via Roma 45"
+- CAP: "20100" (5 digits)
+- Città: "Milano"
+- Telefono: "+39 02 12345678"
 
-**DELIVERY METHOD SECTION:**
-- Select the first available delivery option
-- If express/fast delivery is available: Select it
-- Do not spend time comparing prices
+**SPAIN (Spanish language/currency):**
+- Nombre: "Carlos"
+- Apellido: "Lopez"
+- Dirección: "Calle Mayor 8"
+- Código postal: "28001" (5 digits)
+- Ciudad: "Madrid"
+- Teléfono: "+34 91 12345678"
 
-- **FILL ALL REQUIRED FIELDS** - Look for red asterisks (*), "required" labels, or red borders
-- **USE TAB KEY** to navigate between fields quickly
-- **DO NOT SKIP ANY VISIBLE FIELDS** - Fill everything you can see
+**POLAND (Polish language/currency):**
+- Imię: "Jan"
+- Nazwisko: "Kowalski"
+- Adres: "ul. Marszałkowska 123"
+- Kod pocztowy: "00-001" (XX-XXX format)
+- Miasto: "Warszawa"
+- Telefon: "+48 22 12345678"
 
-STEP 3 - PAYMENT METHOD SELECTION (3 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- **WAIT** for payment method section to load (may appear after form filling)
-- Look for payment method options:
-  * Credit Card / Debit Card / Card payment / "Credit/Debit Betalingskort"
-  * PayPal (if available, but prefer card)
-  * MobilePay, Klarna, Anyday (avoid these - prefer card)
-  * Bank transfer (avoid if possible)
-- **SELECT CARD PAYMENT** - This usually leads to payment gateway
-- **AVOID** PayPal, Apple Pay, Google Pay, MobilePay, Klarna if you want to reach external payment gateway
+**FRANCE (French language/currency):**
+- Prénom: "Marie"
+- Nom: "Dubois"
+- Adresse: "Rue de Rivoli 123"
+- Code postal: "75001" (5 digits)
+- Ville: "Paris"
+- Téléphone: "+33 1 23 45 67 89"
 
-STEP 4 - PROCEED TO PAYMENT (3 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- **ONLY AFTER ALL FIELDS ARE FILLED AND PAYMENT METHOD SELECTED**
-- Look for and click payment buttons:
-  * "Pay Now", "Complete Order", "Continue to Payment", "Proceed to Payment"
-  * "Place Order", "Finalize Payment", "Pay with Card"
-  * "Betal nu" (Danish), "Payer maintenant" (French), "Paga ora" (Italian)
-- **MULTILINGUAL PAYMENT BUTTONS**:
-  * ENGLISH: Pay Now, Complete Order, Continue, Proceed, Place Order
-  * FRENCH: Payer maintenant, Finaliser, Continuer, Passer commande
-  * ITALIAN: Paga ora, Completa ordine, Continua, Procedi, Ordina
-  * GERMAN: Jetzt bezahlen, Bestellung abschließen, Weiter, Fortfahren
-  * SPANISH: Pagar ahora, Completar pedido, Continuar, Proceder
-  * POLISH: Zapłać teraz, Zakończ zamówienie, Kontynuuj, Przejdź
-  * DANISH: Betal nu, Fuldfør ordre, Fortsæt, Gå videre
+**DEFAULT (English/other):**
+- First Name: "John"
+- Last Name: "Smith"
+- Address: "123 Main St"
+- Postal Code: "12345"
+- City: "New York"
+- Phone: "+1 555 123 4567"
 
-STEP 5 - EXTRACT PAYMENT GATEWAY URL (2 seconds max)
-- **WAIT** for payment gateway page to load completely
-- **COPY** the current URL immediately - this is the payment gateway URL
-- **IDENTIFY** the payment gateway provider (Stripe, PayPal, Adyen, etc.)
-- **REPORT** results instantly
+- **Fill ALL visible fields** - Look for required fields (red asterisks, borders)
+- **Use TAB key** to navigate between fields
+- **Billing address**: Select "same as delivery" if available
+
+STEP 3 - SELECT CARD PAYMENT (2 seconds)
+- Look for payment options:
+  * "Credit/Debit Card", "Betalingskort", "Carte", "Karte", "Tarjeta", "Karta"
+  * "Pay with Card", "Paga con carta", "Bezahlen mit Karte"
+- **SELECT CARD PAYMENT** (avoid PayPal, MobilePay, Klarna, Apple Pay, Google Pay)
+
+STEP 4 - CLICK PAY BUTTON (2 seconds)
+- Look for payment buttons:
+  * "Pay Now", "Betal nu", "Paga ora", "Bezahlen", "Pagar", "Zapłać", "Payer"
+  * "Complete Order", "Place Order", "Finalize Payment"
+- **CLICK THE PAY BUTTON** to reach payment gateway
+
+STEP 5 - EXTRACT PAYMENT URL (1 second)
+- **WAIT** for payment gateway page to load
+- **COPY** the current URL - this is the payment gateway URL
+- **IDENTIFY** payment provider (Stripe, Adyen, etc.)
 
 CRITICAL RULES:
-- **POPUP ELIMINATION IS TOP PRIORITY** - Close ALL popups before doing ANYTHING else
-- **FORM COMPLETION IS MANDATORY** - Fill ALL visible fields before clicking payment buttons
-- **PAYMENT URL EXTRACTION IS ULTIMATE PRIORITY** - Extract payment gateway URL FIRST and FASTEST
-- BE SYSTEMATIC - Complete each step thoroughly before moving to the next
-- BE DECISIVE - If you see a button that looks right, click it immediately
-- USE RANDOM DATA - Don't spend time on realistic data, just fill required fields
-- MULTILINGUAL - Recognize buttons and fields in any language (including Danish)
-- **NEVER CLICK PAYMENT BUTTONS** until ALL form fields are filled
-- **POPUP PERSISTENCE**: If popups keep appearing, refresh page and start over
-- **POPUP BLOCKING**: Never proceed if ANY popup is visible - close it first
+- **ALWAYS close popups first** - Never proceed with popups visible
+- **Use correct country data** - Match postal codes, phone formats to country
+- **Fill ALL required fields** - Don't skip any visible fields
+- **Only click pay button** after all fields filled and card selected
+- **Extract payment URL immediately** when gateway loads
 
 REPORT FORMAT:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes
-PAYMENT_URL: [full payment gateway URL]
-PAYMENT_GATEWAY: [gateway provider name]
+PAYMENT_URL: [payment gateway URL]
+PAYMENT_GATEWAY: [provider name]
 STEPS_COMPLETED: [summary]
 ISSUES_ENCOUNTERED: [any problems]
 SCREENSHOT_READY: Yes
 
-START NOW - BE SYSTEMATIC AND THOROUGH!
+START NOW - BE PRECISE AND EFFICIENT!
         `.trim();
     }
 
@@ -319,18 +301,18 @@ START NOW - BE SYSTEMATIC AND THOROUGH!
                 progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
             }
 
-            // Start the browser use task with systematic settings for thorough form filling
+            // Start the browser use task with precise settings for 4-step process
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 20, // More steps for systematic form filling
-                maxFailures: 5, // Allow more failures for complex forms
+                maxSteps: 15, // Focused steps for 4-step process
+                maxFailures: 4, // Allow failures for complex forms
                 useVision: true, // Enable vision for better form understanding
                 validateOutput: false, // Disable validation for maximum speed
                 keepBrowserOpen: false, // Close browser after task completion
-                maxActionsPerStep: 5, // Allow more actions per step for form filling
-                plannerInterval: 5, // Check progress regularly
-                maxInputTokens: 3000 // More tokens for detailed instructions
+                maxActionsPerStep: 4, // Focused actions per step
+                plannerInterval: 4, // Check progress regularly
+                maxInputTokens: 2500 // Optimized tokens for precise instructions
             });
 
             // Race between the task and timeout
