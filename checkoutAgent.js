@@ -6,7 +6,7 @@ class CheckoutURLExtractor {
      * adds products to cart, and extracts the checkout URL.
      */
     
-    constructor(timeoutMinutes = 0.25) { // 15 seconds timeout for 5-10 second target
+    constructor(timeoutMinutes = 2) { // 2 minutes maximum timeout for safety, but targeting 5-10 seconds
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -193,16 +193,30 @@ Website URL: ${websiteUrl}
                 progressCallback(`📱 Browser session created: ${sessionId}`);
             }
 
-            // Set up timeout
+            // Set up timeout with session termination
             const timeoutMs = this.timeoutMinutes * 60 * 1000;
             const timeoutPromise = new Promise((_, reject) => {
-                timeoutId = setTimeout(() => {
+                timeoutId = setTimeout(async () => {
+                    // Actively stop the Hyperbrowser session to prevent credit usage
+                    try {
+                        if (sessionId) {
+                            await this.hb.sessions.stop(sessionId);
+                            if (progressCallback) {
+                                progressCallback(`🛑 Session ${sessionId} stopped due to timeout`);
+                            }
+                        }
+                    } catch (stopError) {
+                        if (progressCallback) {
+                            progressCallback(`⚠️ Warning: Could not stop session after timeout: ${stopError.message}`);
+                        }
+                    }
                     reject(new Error(`Task timed out after ${this.timeoutMinutes} minutes`));
                 }, timeoutMs);
             });
 
             if (progressCallback) {
                 progressCallback("🤖 Starting browser automation task...");
+                progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
             }
 
             // Start the browser use task with ultra-optimized settings for 5-10 second execution
