@@ -370,7 +370,15 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
         // Initialize Socket.IO
-        const socket = io();
+        // Initialize Socket.io if available (local development only)
+        let socket = null;
+        try {
+            if (typeof io !== 'undefined') {
+                socket = io();
+            }
+        } catch (error) {
+            console.log('Socket.io not available (production mode)');
+        }
         let currentSessionId = null;
 
         // DOM elements
@@ -386,25 +394,66 @@
         const errorMessage = document.getElementById('errorMessage');
 
         // Socket.IO event listeners
-        socket.on('progress_update', (data) => {
-            if (data.session_id === currentSessionId) {
-                addLogEntry(data.message, data.timestamp);
-            }
-        });
+        if (socket) {
+            socket.on('progress_update', (data) => {
+                if (data.session_id === currentSessionId) {
+                    addLogEntry(data.message, data.timestamp);
+                }
+            });
 
-        socket.on('analysis_complete', (data) => {
-            if (data.session_id === currentSessionId) {
-                showResults(data.result);
-                resetForm();
-            }
-        });
+            socket.on('analysis_complete', (data) => {
+                if (data.session_id === currentSessionId) {
+                    showResults(data.result);
+                    resetForm();
+                }
+            });
 
-        socket.on('analysis_error', (data) => {
-            if (data.session_id === currentSessionId) {
-                showError(data.error);
-                resetForm();
+            socket.on('analysis_error', (data) => {
+                if (data.session_id === currentSessionId) {
+                    showError(data.error);
+                    resetForm();
+                }
+            });
+        } else {
+            // Fallback polling for production mode (when Socket.io is not available)
+            let pollingInterval = null;
+            
+            function startPolling(sessionId) {
+                pollingInterval = setInterval(async () => {
+                    try {
+                        const response = await fetch(`/api/session/${sessionId}`);
+                        const session = await response.json();
+                        
+                        if (session.status === 'completed') {
+                            showResults(session.result);
+                            resetForm();
+                            clearInterval(pollingInterval);
+                        } else if (session.status === 'error') {
+                            showError(session.error);
+                            resetForm();
+                            clearInterval(pollingInterval);
+                        } else if (session.progress && session.progress.length > 0) {
+                            // Show latest progress message
+                            const latestProgress = session.progress[session.progress.length - 1];
+                            addLogEntry(latestProgress.message, latestProgress.timestamp);
+                        }
+                    } catch (error) {
+                        console.error('Polling error:', error);
+                    }
+                }, 2000); // Poll every 2 seconds
             }
-        });
+            
+            function stopPolling() {
+                if (pollingInterval) {
+                    clearInterval(pollingInterval);
+                    pollingInterval = null;
+                }
+            }
+            
+            // Store polling functions globally for use in form submission
+            window.startPolling = startPolling;
+            window.stopPolling = stopPolling;
+        }
 
         // Form submission
         form.addEventListener('submit', async (e) => {
@@ -475,6 +524,11 @@
                 // Store session ID
                 currentSessionId = data.session_id;
                 addLogEntry(`📱 Session started: ${data.session_id}`, new Date().toISOString());
+                
+                // Start polling if Socket.io is not available
+                if (!socket && window.startPolling) {
+                    window.startPolling(data.session_id);
+                }
 
             } catch (error) {
                 console.error('Error starting analysis:', error);
@@ -632,6 +686,11 @@
             btnText.textContent = '🚀 Start Analysis';
             btnSpinner.style.display = 'none';
             currentSessionId = null;
+            
+            // Stop polling if it's running
+            if (window.stopPolling) {
+                window.stopPolling();
+            }
         }
 
         function openScreenshotModal(src) {

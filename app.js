@@ -1,6 +1,5 @@
 const express = require('express');
 const http = require('http');
-const socketIo = require('socket.io');
 const cors = require('cors');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
@@ -11,13 +10,17 @@ const { CheckoutURLExtractor } = require('./checkoutAgent');
 const app = express();
 const server = http.createServer(app);
 
-// Configure Socket.IO with CORS
-const io = socketIo(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
-});
+// Configure Socket.IO with CORS (only for local development)
+let io = null;
+if (process.env.NODE_ENV !== 'production' || process.env.VERCEL !== '1') {
+    const socketIo = require('socket.io');
+    io = socketIo(server, {
+        cors: {
+            origin: "*",
+            methods: ["GET", "POST"]
+        }
+    });
+}
 
 // Middleware
 app.use(cors());
@@ -34,11 +37,13 @@ class WebProgressCallback {
     }
 
     call(message) {
-        io.emit('progress_update', {
-            session_id: this.sessionId,
-            message: message,
-            timestamp: new Date().toISOString()
-        });
+        if (io) {
+            io.emit('progress_update', {
+                session_id: this.sessionId,
+                message: message,
+                timestamp: new Date().toISOString()
+            });
+        }
     }
 }
 
@@ -90,11 +95,13 @@ app.post('/api/analyze', async (req, res) => {
                         });
                     }
                     
-                    io.emit('progress_update', {
-                        session_id: sessionId,
-                        message: message,
-                        timestamp: new Date().toISOString()
-                    });
+                    if (io) {
+                        io.emit('progress_update', {
+                            session_id: sessionId,
+                            message: message,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
                 };
 
                 const result = await extractor.extractCheckoutURLWithStreaming(
@@ -111,10 +118,12 @@ app.post('/api/analyze', async (req, res) => {
                 }
 
                 // Emit final result
-                io.emit('analysis_complete', {
-                    session_id: sessionId,
-                    result: result
-                });
+                if (io) {
+                    io.emit('analysis_complete', {
+                        session_id: sessionId,
+                        result: result
+                    });
+                }
 
             } catch (error) {
                 // Update session with error
@@ -126,10 +135,12 @@ app.post('/api/analyze', async (req, res) => {
                 }
 
                 // Emit error
-                io.emit('analysis_error', {
-                    session_id: sessionId,
-                    error: error.message
-                });
+                if (io) {
+                    io.emit('analysis_error', {
+                        session_id: sessionId,
+                        error: error.message
+                    });
+                }
             }
         });
 
@@ -179,14 +190,16 @@ app.get('/test', (req, res) => {
     });
 });
 
-// Socket.IO connection handling
-io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
-    
-    socket.on('disconnect', () => {
-        console.log('Client disconnected:', socket.id);
+// Socket.IO connection handling (only for local development)
+if (io) {
+    io.on('connection', (socket) => {
+        console.log('Client connected:', socket.id);
+        
+        socket.on('disconnect', () => {
+            console.log('Client disconnected:', socket.id);
+        });
     });
-});
+}
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -199,10 +212,12 @@ app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// Start server
-const PORT = process.env.PORT || 3000;
+// Vercel serverless function export
+module.exports = app;
 
+// Start server locally (for development)
 if (require.main === module) {
+    const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
         console.log(`🚀 Payment Provider Extractor running on port ${PORT}`);
         console.log(`📱 Web interface: http://localhost:${PORT}`);
@@ -214,5 +229,3 @@ if (require.main === module) {
         console.log(`   GET  /test - Test endpoint`);
     });
 }
-
-module.exports = { app, server, io };
