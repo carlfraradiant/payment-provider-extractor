@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Provider Extractor - API Documentation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Basic Reset & Body */
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e; /* Dark background */
+            color: #e0e0e0; /* Light text */
+            line-height: 1.6;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .container {
+            background-color: #16213e; /* Slightly lighter dark for container */
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            padding: 35px;
+            max-width: 1000px;
+            width: 100%;
+            margin-top: 30px;
+            border: 1px solid #0f3460;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #0f3460;
+            padding-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #e94560; /* Accent color */
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .back-link {
+            display: inline-block;
+            color: #88d8b0;
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Sections */
+        .section {
+            background-color: #0f3460; /* Darker blue for sections */
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border: 1px solid #e94560; /* Accent border */
+        }
+
+        h2, h3 {
+            color: #e94560;
+            margin-top: 0;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 svg, h3 svg {
+            margin-right: 10px;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            border: 1px solid #0f3460;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            color: #88d8b0;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+
+        .method.get {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .method.post {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .endpoint {
+            font-family: 'Courier New', monospace;
+            color: #88d8b0;
+            font-weight: bold;
+        }
+
+        /* Response examples */
+        .response-example {
+            background-color: #1a1a2e;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #e94560;
+        }
+
+        .response-example h4 {
+            color: #e94560;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .response-example pre {
+            margin: 0;
+            color: #e0e0e0;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+        }
+
+        /* Feature list */
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #0f3460;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:last-child {
+            border-bottom: none;
+        }
+
+        .feature-list li::before {
+            content: "✅";
+            margin-right: 10px;
+        }
+
+        /* Status badges */
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        .status-badge.success {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .status-badge.error {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .status-badge.pending {
+            background-color: #ff9800;
+            color: white;
+        }
+
+        /* Example URLs */
+        .example-url {
+            background-color: #1a1a2e;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #0f3460;
+            font-family: 'Courier New', monospace;
+            color: #88d8b0;
+            word-break: break-all;
+        }
+
+        /* Note boxes */
+        .note {
+            background-color: #2e2e3e;
+            border-left: 4px solid #ff9800;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .note h4 {
+            color: #ff9800;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/" class="back-link">← Back to Main Interface</a>
+        
+        <div class="header">
+            <h1>
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-code"><polyline points="16,18 22,12 16,6"/><polyline points="8,6 2,12 8,18"/></svg>
+                API Documentation
+            </h1>
+            <p>Payment Provider Checkout URL Extractor - RESTful API</p>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2"/></svg>
+                Quick Start
+            </h2>
+            <p>Extract checkout URLs and payment providers from e-commerce websites with a simple API call.</p>
+            
+            <div class="code-block">
+                <pre># Direct API call with URL parameter
+curl "https://payment-provider-extractor.vercel.app/api/url/https%3A//example-shop.com"
+
+# Check status
+curl "https://payment-provider-extractor.vercel.app/api/session/YOUR_SESSION_ID"</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-globe"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                Direct API Endpoint
+            </h2>
+            
+            <h3>GET /api/url/:encoded_url</h3>
+            <p>Start analysis by providing the website URL directly in the path (URL-encoded).</p>
+            
+            <div class="code-block">
+                <pre><span class="method get">GET</span><span class="endpoint">/api/url/{encoded_website_url}</span></pre>
+            </div>
+
+            <h4>Parameters:</h4>
+            <ul>
+                <li><strong>encoded_url</strong> (path parameter) - The e-commerce website URL to analyze (must be URL-encoded)</li>
+            </ul>
+
+            <h4>Example URLs:</h4>
+            <div class="example-url">https://payment-provider-extractor.vercel.app/api/url/https%3A//demo.shopify.com</div>
+            <div class="example-url">https://payment-provider-extractor.vercel.app/api/url/https%3A//example-shop.com</div>
+            <div class="example-url">https://payment-provider-extractor.vercel.app/api/url/https%3A//store.example.com</div>
+
+            <div class="response-example">
+                <h4>Response (Immediate):</h4>
+                <pre>{
+  "session_id": "abc123-def456-ghi789",
+  "status": "started",
+  "message": "Analysis started successfully",
+  "url": "https://example-shop.com",
+  "check_status_url": "/api/session/abc123-def456-ghi789",
+  "result_url": "/api/session/abc123-def456-ghi789"
+}</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-database"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"/></svg>
+                Session Management
+            </h2>
+            
+            <h3>GET /api/session/:id</h3>
+            <p>Check the status and get results of an analysis session.</p>
+            
+            <div class="code-block">
+                <pre><span class="method get">GET</span><span class="endpoint">/api/session/{session_id}</span></pre>
+            </div>
+
+            <h4>Parameters:</h4>
+            <ul>
+                <li><strong>id</strong> (path parameter) - The session ID returned from the initial API call</li>
+            </ul>
+
+            <div class="response-example">
+                <h4>Response (In Progress):</h4>
+                <pre>{
+  "url": "https://example-shop.com",
+  "status": "starting",
+  "start_time": "2024-01-15T10:30:00.000Z",
+  "progress": [
+    {
+      "message": "🌐 Creating browser session...",
+      "timestamp": "2024-01-15T10:30:01.000Z"
+    },
+    {
+      "message": "🤖 Starting browser automation task...",
+      "timestamp": "2024-01-15T10:30:02.000Z"
+    }
+  ],
+  "result": null
+}</pre>
+            </div>
+
+            <div class="response-example">
+                <h4>Response (Completed):</h4>
+                <pre>{
+  "url": "https://example-shop.com",
+  "status": "completed",
+  "start_time": "2024-01-15T10:30:00.000Z",
+  "end_time": "2024-01-15T10:30:15.000Z",
+  "progress": [...],
+  "result": {
+    "website_name": "Example Shop",
+    "product_added": "Sample Product",
+    "checkout_url": "https://example-shop.com/checkout",
+    "payment_providers": ["PayPal", "Visa", "Mastercard", "Stripe"],
+    "steps_completed": "Successfully added product and reached checkout",
+    "issues_encountered": "None",
+    "screenshot": {
+      "live_url": "https://hyperbrowser.ai/session/abc123",
+      "status": "live_url_available"
+    }
+  }
+}</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-send"><path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9 22 2z"/></svg>
+                POST API Endpoint
+            </h2>
+            
+            <h3>POST /api/analyze</h3>
+            <p>Start analysis by sending a POST request with JSON body.</p>
+            
+            <div class="code-block">
+                <pre><span class="method post">POST</span><span class="endpoint">/api/analyze</span></pre>
+            </div>
+
+            <h4>Request Body:</h4>
+            <div class="code-block">
+                <pre>{
+  "url": "https://example-shop.com",
+  "detailed": true
+}</pre>
+            </div>
+
+            <h4>Parameters:</h4>
+            <ul>
+                <li><strong>url</strong> (required) - The e-commerce website URL to analyze</li>
+                <li><strong>detailed</strong> (optional) - Include detailed analysis (default: true)</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3.01" y1="6" y2="6"/><line x1="3" x2="3.01" y1="12" y2="12"/><line x1="3" x2="3.01" y1="18" y2="18"/></svg>
+                Additional Endpoints
+            </h2>
+            
+            <h3>GET /api/sessions</h3>
+            <p>List all active and completed analysis sessions.</p>
+            <div class="code-block">
+                <pre><span class="method get">GET</span><span class="endpoint">/api/sessions</span></pre>
+            </div>
+
+            <h3>GET /health</h3>
+            <p>Health check endpoint to verify API status.</p>
+            <div class="code-block">
+                <pre><span class="method get">GET</span><span class="endpoint">/health</span></pre>
+            </div>
+
+            <h3>GET /test</h3>
+            <p>Simple test endpoint.</p>
+            <div class="code-block">
+                <pre><span class="method get">GET</span><span class="endpoint">/test</span></pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-star"><polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26 12,2"/></svg>
+                Features
+            </h2>
+            <ul class="feature-list">
+                <li>Automated e-commerce checkout analysis</li>
+                <li>Payment provider identification</li>
+                <li>Checkout URL extraction</li>
+                <li>Multilingual support (English, French, Italian, German, Spanish, Polish)</li>
+                <li>Aggressive popup handling and elimination</li>
+                <li>2-minute timeout protection</li>
+                <li>Live session URLs for real-time viewing</li>
+                <li>Real-time progress updates</li>
+                <li>RESTful API design</li>
+                <li>JSON responses</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                Response Times
+            </h2>
+            <ul>
+                <li><strong>Target execution time:</strong> 5-10 seconds</li>
+                <li><strong>Maximum timeout:</strong> 2 minutes</li>
+                <li><strong>Typical response:</strong> 10-30 seconds</li>
+                <li><strong>Complex sites:</strong> 30-60 seconds</li>
+            </ul>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-alert-triangle"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                Status Codes
+            </h2>
+            <ul>
+                <li><span class="status-badge success">200</span> Success</li>
+                <li><span class="status-badge error">400</span> Bad Request (invalid URL, missing parameters)</li>
+                <li><span class="status-badge error">404</span> Not Found (session not found)</li>
+                <li><span class="status-badge error">500</span> Internal Server Error</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <h4>💡 Usage Tips</h4>
+            <ul>
+                <li>URLs in the direct API endpoint should be URL-encoded</li>
+                <li>Use the session ID to check progress and get results</li>
+                <li>Analysis runs in the background - check status periodically</li>
+                <li>Results are available for 1 hour after completion</li>
+                <li>For real-time updates, use the web interface with Socket.io</li>
+            </ul>
+        </div>
+
+        <div class="note">
+            <h4>🔧 Integration Examples</h4>
+            <p><strong>JavaScript/Fetch:</strong></p>
+            <div class="code-block">
+                <pre>const url = encodeURIComponent('https://example-shop.com');
+const response = await fetch(`https://payment-provider-extractor.vercel.app/api/url/${url}`);
+const data = await response.json();
+console.log('Session ID:', data.session_id);</pre>
+            </div>
+            
+            <p><strong>Python/Requests:</strong></p>
+            <div class="code-block">
+                <pre>import requests
+from urllib.parse import quote
+url = quote('https://example-shop.com', safe='')
+response = requests.get(f'https://payment-provider-extractor.vercel.app/api/url/{url}')
+data = response.json()
+print('Session ID:', data['session_id'])</pre>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

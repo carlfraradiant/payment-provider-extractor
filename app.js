@@ -52,6 +52,12 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// API Documentation page
+app.get('/api', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'api-docs.html'));
+});
+
+
 app.post('/api/analyze', async (req, res) => {
     try {
         const { url } = req.body;
@@ -205,6 +211,116 @@ if (io) {
 app.use((err, req, res, next) => {
     console.error('Error:', err);
     res.status(500).json({ error: 'Internal server error' });
+});
+
+// Direct API endpoint: GET /api/url/:encoded_url
+app.get('/api/url/:encoded_url(*)', async (req, res) => {
+    try {
+        const { encoded_url } = req.params;
+        
+        if (!encoded_url || !encoded_url.trim()) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        // Decode the URL parameter
+        const websiteUrl = decodeURIComponent(encoded_url.trim());
+        
+        // Validate URL format
+        try {
+            new URL(websiteUrl);
+        } catch (error) {
+            return res.status(400).json({ error: 'Invalid URL format' });
+        }
+
+        const sessionId = uuidv4();
+
+        // Store session info
+        activeSessions.set(sessionId, {
+            url: websiteUrl,
+            status: 'starting',
+            start_time: new Date().toISOString(),
+            progress: [],
+            result: null
+        });
+
+        // Start analysis in background
+        setImmediate(async () => {
+            try {
+                console.log(`🚀 Starting direct API analysis for: ${websiteUrl}`);
+                
+                const extractor = new CheckoutURLExtractor(2); // 2 minute maximum timeout
+                console.log("✅ CheckoutURLExtractor initialized successfully");
+                
+                const progressCallback = new WebProgressCallback(sessionId);
+                
+                // Override the call method to emit to Socket.IO (if available)
+                progressCallback.call = (message) => {
+                    const session = activeSessions.get(sessionId);
+                    if (session) {
+                        session.progress.push({
+                            message: message,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                    if (io) {
+                        io.emit('progress_update', {
+                            session_id: sessionId,
+                            message: message,
+                            timestamp: new Date().toISOString()
+                        });
+                    }
+                };
+
+                progressCallback.call(`Starting analysis for: ${websiteUrl}`);
+                const result = await extractor.extractCheckoutURLWithStreaming(websiteUrl, progressCallback.call.bind(progressCallback));
+                
+                const session = activeSessions.get(sessionId);
+                if (session) {
+                    session.result = result;
+                    session.status = 'completed';
+                    session.end_time = new Date().toISOString();
+                }
+                progressCallback.call("Analysis completed successfully!");
+                
+                if (io) {
+                    io.emit('analysis_complete', { session_id: sessionId, result: result });
+                }
+
+            } catch (error) {
+                console.error(`Error during direct API analysis for session ${sessionId}:`, error);
+                const session = activeSessions.get(sessionId);
+                if (session) {
+                    session.status = 'error';
+                    session.error = error.message;
+                    session.end_time = new Date().toISOString();
+                }
+                const errorMessage = `Error: ${error.message}`;
+                if (activeSessions.get(sessionId)) {
+                    activeSessions.get(sessionId).progress.push({
+                        message: errorMessage,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                if (io) {
+                    io.emit('analysis_error', { session_id: sessionId, error: error.message });
+                }
+            }
+        });
+
+        // Return immediate response with session ID
+        res.json({
+            session_id: sessionId,
+            status: 'started',
+            message: 'Analysis started successfully',
+            url: websiteUrl,
+            check_status_url: `/api/session/${sessionId}`,
+            result_url: `/api/session/${sessionId}`
+        });
+
+    } catch (error) {
+        console.error('Error in direct API endpoint:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 // 404 handler
