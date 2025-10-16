@@ -213,7 +213,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ error: 'Internal server error' });
 });
 
-// Direct API endpoint: GET /api/url/:encoded_url
+// Direct API endpoint: GET /api/url/:encoded_url (SYNCHRONOUS)
 app.get('/api/url/:encoded_url(*)', async (req, res) => {
     try {
         const { encoded_url } = req.params;
@@ -233,89 +233,112 @@ app.get('/api/url/:encoded_url(*)', async (req, res) => {
         }
 
         const sessionId = uuidv4();
+        const startTime = new Date().toISOString();
 
         // Store session info
         activeSessions.set(sessionId, {
             url: websiteUrl,
-            status: 'starting',
-            start_time: new Date().toISOString(),
+            status: 'running',
+            start_time: startTime,
             progress: [],
             result: null
         });
 
-        // Start analysis in background
-        setImmediate(async () => {
-            try {
-                console.log(`🚀 Starting direct API analysis for: ${websiteUrl}`);
-                
-                const extractor = new CheckoutURLExtractor(2); // 2 minute maximum timeout
-                console.log("✅ CheckoutURLExtractor initialized successfully");
-                
-                const progressCallback = new WebProgressCallback(sessionId);
-                
-                // Override the call method to emit to Socket.IO (if available)
-                progressCallback.call = (message) => {
-                    const session = activeSessions.get(sessionId);
-                    if (session) {
-                        session.progress.push({
-                            message: message,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                    if (io) {
-                        io.emit('progress_update', {
-                            session_id: sessionId,
-                            message: message,
-                            timestamp: new Date().toISOString()
-                        });
-                    }
-                };
-
-                progressCallback.call(`Starting analysis for: ${websiteUrl}`);
-                const result = await extractor.extractCheckoutURLWithStreaming(websiteUrl, progressCallback.call.bind(progressCallback));
-                
+        console.log(`🚀 Starting SYNCHRONOUS direct API analysis for: ${websiteUrl}`);
+        
+        try {
+            const extractor = new CheckoutURLExtractor(2); // 2 minute maximum timeout
+            console.log("✅ CheckoutURLExtractor initialized successfully");
+            
+            const progressCallback = new WebProgressCallback(sessionId);
+            
+            // Override the call method to store progress
+            progressCallback.call = (message) => {
                 const session = activeSessions.get(sessionId);
                 if (session) {
-                    session.result = result;
-                    session.status = 'completed';
-                    session.end_time = new Date().toISOString();
-                }
-                progressCallback.call("Analysis completed successfully!");
-                
-                if (io) {
-                    io.emit('analysis_complete', { session_id: sessionId, result: result });
-                }
-
-            } catch (error) {
-                console.error(`Error during direct API analysis for session ${sessionId}:`, error);
-                const session = activeSessions.get(sessionId);
-                if (session) {
-                    session.status = 'error';
-                    session.error = error.message;
-                    session.end_time = new Date().toISOString();
-                }
-                const errorMessage = `Error: ${error.message}`;
-                if (activeSessions.get(sessionId)) {
-                    activeSessions.get(sessionId).progress.push({
-                        message: errorMessage,
+                    session.progress.push({
+                        message: message,
                         timestamp: new Date().toISOString()
                     });
                 }
                 if (io) {
-                    io.emit('analysis_error', { session_id: sessionId, error: error.message });
+                    io.emit('progress_update', {
+                        session_id: sessionId,
+                        message: message,
+                        timestamp: new Date().toISOString()
+                    });
                 }
-            }
-        });
+            };
 
-        // Return immediate response with session ID
-        res.json({
-            session_id: sessionId,
-            status: 'started',
-            message: 'Analysis started successfully',
-            url: websiteUrl,
-            check_status_url: `/api/session/${sessionId}`,
-            result_url: `/api/session/${sessionId}`
-        });
+            progressCallback.call(`Starting analysis for: ${websiteUrl}`);
+            
+            // SYNCHRONOUS EXECUTION - Wait for completion
+            const result = await extractor.extractCheckoutURLWithStreaming(websiteUrl, progressCallback.call.bind(progressCallback));
+            
+            const endTime = new Date().toISOString();
+            
+            // Update session with results
+            const session = activeSessions.get(sessionId);
+            if (session) {
+                session.result = result;
+                session.status = 'completed';
+                session.end_time = endTime;
+            }
+            
+            progressCallback.call("Analysis completed successfully!");
+            
+            if (io) {
+                io.emit('analysis_complete', { session_id: sessionId, result: result });
+            }
+
+            // Return complete results immediately
+            res.json({
+                session_id: sessionId,
+                status: 'completed',
+                message: 'Analysis completed successfully',
+                url: websiteUrl,
+                start_time: startTime,
+                end_time: endTime,
+                duration_seconds: Math.round((new Date(endTime) - new Date(startTime)) / 1000),
+                result: result,
+                progress: session ? session.progress : []
+            });
+
+        } catch (error) {
+            console.error(`Error during direct API analysis for session ${sessionId}:`, error);
+            const endTime = new Date().toISOString();
+            
+            const session = activeSessions.get(sessionId);
+            if (session) {
+                session.status = 'error';
+                session.error = error.message;
+                session.end_time = endTime;
+            }
+            
+            const errorMessage = `Error: ${error.message}`;
+            if (activeSessions.get(sessionId)) {
+                activeSessions.get(sessionId).progress.push({
+                    message: errorMessage,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            if (io) {
+                io.emit('analysis_error', { session_id: sessionId, error: error.message });
+            }
+
+            // Return error response
+            res.status(500).json({
+                session_id: sessionId,
+                status: 'error',
+                message: 'Analysis failed',
+                url: websiteUrl,
+                start_time: startTime,
+                end_time: endTime,
+                error: error.message,
+                progress: session ? session.progress : []
+            });
+        }
 
     } catch (error) {
         console.error('Error in direct API endpoint:', error);

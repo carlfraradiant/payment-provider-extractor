@@ -258,7 +258,7 @@ curl "https://payment-provider-extractor.vercel.app/api/session/YOUR_SESSION_ID"
             </h2>
             
             <h3>GET /api/url/:encoded_url</h3>
-            <p>Start analysis by providing the website URL directly in the path (URL-encoded).</p>
+            <p>Start analysis and get complete results immediately by providing the website URL directly in the path (URL-encoded). This endpoint runs synchronously and returns the full analysis results.</p>
             
             <div class="code-block">
                 <pre><span class="method get">GET</span><span class="endpoint">/api/url/{encoded_website_url}</span></pre>
@@ -275,14 +275,37 @@ curl "https://payment-provider-extractor.vercel.app/api/session/YOUR_SESSION_ID"
             <div class="example-url">https://payment-provider-extractor.vercel.app/api/url/https%3A//store.example.com</div>
 
             <div class="response-example">
-                <h4>Response (Immediate):</h4>
+                <h4>Response (Complete Results):</h4>
                 <pre>{
   "session_id": "abc123-def456-ghi789",
-  "status": "started",
-  "message": "Analysis started successfully",
+  "status": "completed",
+  "message": "Analysis completed successfully",
   "url": "https://example-shop.com",
-  "check_status_url": "/api/session/abc123-def456-ghi789",
-  "result_url": "/api/session/abc123-def456-ghi789"
+  "start_time": "2024-01-15T10:30:00.000Z",
+  "end_time": "2024-01-15T10:30:15.000Z",
+  "duration_seconds": 15,
+  "result": {
+    "website_name": "Example Shop",
+    "product_added": "Sample Product",
+    "checkout_url": "https://example-shop.com/checkout",
+    "payment_providers": ["PayPal", "Visa", "Mastercard", "Stripe"],
+    "steps_completed": "Successfully added product and reached checkout",
+    "issues_encountered": "None",
+    "screenshot": {
+      "live_url": "https://hyperbrowser.ai/session/abc123",
+      "status": "live_url_available"
+    }
+  },
+  "progress": [
+    {
+      "message": "🌐 Creating browser session...",
+      "timestamp": "2024-01-15T10:30:01.000Z"
+    },
+    {
+      "message": "✅ Analysis completed successfully!",
+      "timestamp": "2024-01-15T10:30:15.000Z"
+    }
+  ]
 }</pre>
             </div>
         </div>
