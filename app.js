@@ -93,7 +93,7 @@ app.post('/api/analyze', async (req, res) => {
                 console.log(`OPENAI_API_KEY (first 5 chars): ${process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'NOT SET'}`);
                 console.log(`NODE_ENV: ${process.env.NODE_ENV || 'NOT SET'}`);
                 
-                const extractor = new CheckoutURLExtractor(2); // 2 minute maximum timeout for safety, targeting 5-10 seconds
+                const extractor = new CheckoutURLExtractor(2.5); // 2.5 minute maximum timeout for safety, targeting 5-10 seconds
                 console.log("✅ CheckoutURLExtractor initialized successfully");
                 const progressCallback = new WebProgressCallback(sessionId);
                 
@@ -245,7 +245,7 @@ app.post('/api/payment/extract', async (req, res) => {
             try {
                 console.log(`🚀 Starting payment extraction for: ${websiteUrl}`);
                 
-                const extractor = new PaymentURLExtractorV2(2); // 2 minute maximum timeout
+                const extractor = new PaymentURLExtractorV2(2.5); // 2.5 minute maximum timeout
                 console.log("✅ PaymentURLExtractorV2 initialized successfully");
                 
                 const progressCallback = new WebProgressCallback(sessionId);
@@ -362,7 +362,7 @@ app.get('/api/payment/:encoded_url(*)', async (req, res) => {
         console.log(`🚀 Starting SYNCHRONOUS payment extraction for: ${checkoutUrl}`);
         
         try {
-            const extractor = new PaymentURLExtractorV2(2); // 2 minute maximum timeout
+            const extractor = new PaymentURLExtractorV2(2.5); // 2.5 minute maximum timeout
             console.log("✅ PaymentURLExtractorV2 initialized successfully");
             
             const progressCallback = new WebProgressCallback(sessionId);
@@ -495,7 +495,7 @@ app.get('/api/url/:encoded_url(*)', async (req, res) => {
         console.log(`🚀 Starting SYNCHRONOUS direct API analysis for: ${websiteUrl}`);
         
         try {
-            const extractor = new CheckoutURLExtractor(2); // 2 minute maximum timeout
+            const extractor = new CheckoutURLExtractor(2.5); // 2.5 minute maximum timeout
             console.log("✅ CheckoutURLExtractor initialized successfully");
             
             const progressCallback = new WebProgressCallback(sessionId);
