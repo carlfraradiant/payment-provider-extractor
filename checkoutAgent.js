@@ -343,6 +343,21 @@ Website URL: ${websiteUrl}
             }
         }
 
+        // Fallback: robust URL extraction if CHECKOUT_URL not explicitly provided
+        if (!result.checkout_url || !/^https?:\/\//i.test(result.checkout_url)) {
+            try {
+                const urlRegex = /(https?:\/\/[^\s\]\)\">]+)/gmi;
+                const matches = [...responseText.matchAll(urlRegex)].map(m => (m[1] || '').trim());
+                const unique = Array.from(new Set(matches));
+                const looksLikeCheckout = (u) => /checkout|checkouts|cart|kasse|kassa|cassa|panier|koszyk|ko\u0161\u00edk|carrello|k\u00f8b/i.test(u);
+                // Prefer URLs that look like checkout first
+                const preferred = unique.find(looksLikeCheckout) || unique[0];
+                if (preferred) {
+                    result.checkout_url = preferred;
+                }
+            } catch {}
+        }
+
         // Store the raw response for debugging
         result.raw_response = responseText;
 
