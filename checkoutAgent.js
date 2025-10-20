@@ -6,7 +6,7 @@ class CheckoutURLExtractor {
      * adds products to cart, and extracts the checkout URL.
      */
     
-    constructor(timeoutMinutes = 2) { // 2 minutes maximum timeout for safety, but targeting 5-10 seconds
+    constructor(timeoutMinutes = 2.5) { // 2.5 minutes maximum timeout for safety, but targeting 5-10 seconds
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
