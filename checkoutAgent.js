@@ -60,139 +60,41 @@ class CheckoutURLExtractor {
     }
 
     /**
-     * Get the detailed task description for the browser agent
+     * Get the detailed task description for HyperAgent
      */
     _getTaskDescription(websiteUrl) {
         return `
-You are a FAST and EFFICIENT e-commerce checkout agent. Your goal is to quickly navigate to ${websiteUrl}, add ANY product to cart, and reach the checkout page to extract the URL and payment providers.
+You are a FAST e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach the final checkout page quickly, then output the checkout URL and visible payment providers.
 
-SPEED IS CRITICAL - Complete this task in 5-10 seconds total. Be extremely fast and decisive.
+Do this strictly:
+1) Close popups immediately (Accept/OK/X/Close; multilingual variants allowed). Look for cookie banners and consent dialogs first.
+2) Open a product page (first obvious product or from Shop/Products/Collection). Avoid pages that are out of stock.
+3) FIND AND CLICK THE ADD-TO-CART BUTTON RELIABLY:
+   - If the button is not visible, SCROLL the page: use small incremental scrolls down the page until buttons and forms become visible; if you reach the bottom without finding it, scroll back up a little and try again.
+   - Accept multilingual labels for add-to-cart: "Add to cart", "Add to bag", "Add to basket", "Buy", "Comprar", "Acheter", "Ajouter au panier", "In den Warenkorb", "Aggiungi al carrello", "Dodaj do koszyka", "Dodaj do koszyka", "Køb", "Læg i kurv", "Tilføj til kurv", "Køb nu", "Dodaj do koszyka", "Dodaj do košíku".
+   - Also detect common selectors/attributes: buttons or inputs with type=submit near product forms; ids/classes containing add-to-cart, add, cart, purchase, buy; Shopify examples like button[name="add"], #AddToCart, [data-testid*="add-to-cart"].
+   - If variants (size/color) are REQUIRED, quickly choose the first available option for each required selector before clicking add to cart.
+   - Ensure QUANTITY = 1.
+4) Confirm the cart drawer or cart page shows exactly one item. If the cart is empty, try the add-to-cart step again once after a short scroll and wait.
+5) Open the cart and click "Checkout" / "Proceed to checkout" / localized equivalents ("Kasse", "Zur Kasse", "Cassa", "Pagar", "Finaliser la commande", "Do kasy").
+6) On the checkout page, copy the full URL and return.
 
-MULTILINGUAL SUPPORT: This website may be in English, French, Italian, German, Spanish, Polish, or other languages. Look for these common terms:
+Speed rules:
+- Be decisive and fast. Avoid optional choices unless mandatory.
+- Always close popups before continuing.
+- Only add a single item.
+- If stuck, refresh and retry once.
 
-ENGLISH: Accept, Add to Cart, Cart, Checkout, Buy Now, Proceed
-FRENCH: Accepter, Ajouter au panier, Panier, Commander, Acheter maintenant
-ITALIAN: Accetta, Aggiungi al carrello, Carrello, Checkout, Acquista ora
-GERMAN: Akzeptieren, In den Warenkorb, Warenkorb, Zur Kasse, Jetzt kaufen
-SPANISH: Aceptar, Añadir al carrito, Carrito, Finalizar compra, Comprar ahora
-POLISH: Akceptuj, Dodaj do koszyka, Koszyk, Do kasy, Kup teraz, Przejdź
-
-FAST EXECUTION STRATEGY:
-
-STEP 1 - AGGRESSIVE POPUP ELIMINATION (2 seconds max)
-- Go to: ${websiteUrl}
-- **CRITICAL**: IMMEDIATELY scan for and eliminate ALL popups:
-  * Cookie consent popups - click "Accept", "OK", "Allow", "I Agree", "Accept All"
-  * Email subscription popups - click "X", "Close", "No Thanks", "Skip"
-  * Newsletter popups - click "X", "Close", "Not Now", "Maybe Later"
-  * Age verification popups - click "Yes", "I'm 18+", "Enter", "Continue"
-  * Location permission popups - click "Allow", "OK", "Accept"
-  * Notification permission popups - click "Allow", "Block", "Not Now"
-  * Any overlay, modal, or popup - click "X", "Close", "Skip", "Dismiss"
-- **MULTILINGUAL POPUP CLOSING**:
-  * ENGLISH: Accept, OK, Allow, Close, X, Skip, Dismiss, No Thanks
-  * FRENCH: Accepter, OK, Autoriser, Fermer, X, Ignorer, Refuser
-  * ITALIAN: Accetta, OK, Consenti, Chiudi, X, Salta, Rifiuta
-  * GERMAN: Akzeptieren, OK, Erlauben, Schließen, X, Überspringen, Ablehnen
-  * SPANISH: Aceptar, OK, Permitir, Cerrar, X, Omitir, Rechazar
-  * POLISH: Akceptuj, OK, Zezwól, Zamknij, X, Pomiń, Odrzuć
-- **POPUP CLOSING STRATEGIES** (try in order):
-  1. Click any "Accept", "OK", "Allow" button
-  2. Click "X" in top-right corner
-  3. Click "Close", "Skip", "No Thanks" buttons
-  4. Press Escape key
-  5. Click outside the popup area
-  6. Look for small close buttons or icons
-- **IF POPUP PERSISTS**: Refresh page and try again
-- **ONLY PROCEED** when ALL popups are completely closed
-
-STEP 2 - INSTANT PRODUCT SELECTION (2 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- Look for the FIRST visible product on homepage
-- If no products visible, click "Shop" or similar link
-- Pick the FIRST available product immediately
-
-STEP 3 - RAPID ADD TO CART (2 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- Click the product
-- **CRITICAL: Ensure quantity is 1 before adding**
-- Click "Add to Cart" button immediately
-- Skip all optional selections (size, color, etc.)
-- **IF POPUP APPEARS**: Close it immediately before proceeding
-
-STEP 4 - DIRECT TO CHECKOUT (2 seconds max)
-- **FIRST**: Check for and close ANY new popups that appeared
-- Click cart icon or "Cart" button
-- Click "Checkout" or "Proceed" button immediately
-- Go directly to checkout page
-- **IF POPUP APPEARS**: Close it immediately before proceeding
-
-STEP 5 - EXTRACT CRITICAL INFO (1 second max)
-- Copy the checkout URL immediately
-- Scan for payment provider logos (PayPal, Visa, Mastercard, etc.)
-- Report results instantly
-
-CRITICAL RULES:
-- **POPUP ELIMINATION IS TOP PRIORITY** - Close ALL popups before doing ANYTHING else
-- **ULTIMATE PRIORITY**: Checkout URL and Payment Providers - extract these FIRST and FASTEST
-- BE LIGHTNING FAST - Complete entire task in 5-10 seconds total
-- BE DECISIVE - If you see a button that looks right, click it immediately
-- SKIP ALL OPTIONS - Don't spend time on size/color/quantity unless required
-- MULTILINGUAL - Recognize buttons in any language (including Polish)
-- SINGLE ITEM ONLY - Add exactly 1 item to cart, never 2 or more
-- DIRECT PATH - Take the fastest route to checkout page
-- **POPUP PERSISTENCE**: If popups keep appearing, refresh page and start over
-- **POPUP BLOCKING**: Never proceed if ANY popup is visible - close it first
-
-REPORT FORMAT:
-WEBSITE_NAME: [site name]
-PRODUCT_ADDED: [product name or "Yes"]
+Report format (exact keys):
+WEBSITE_NAME: [domain or site name]
+PRODUCT_ADDED: [product name or Yes]
 CHECKOUT_URL: [full checkout URL]
 PAYMENT_PROVIDERS: [comma-separated list]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any problems]
+STEPS_COMPLETED: [short summary]
+ISSUES_ENCOUNTERED: [problems if any]
 SCREENSHOT_READY: Yes
 
-START NOW - BE FAST AND EFFICIENT!
-- Report as: PAYMENT_PROVIDERS: [comma-separated list of providers]
-
-STEP 9 - SCREENSHOT CAPTURE (CRITICAL)
-- Wait for the page to fully load and all JavaScript widgets to render
-- Ensure all payment forms and provider logos are visible
-- Report as: SCREENSHOT_READY: true
-
-IMPORTANT RULES:
-- **POPUP ELIMINATION STRATEGY**:
-  * IMMEDIATELY scan for ANY popup, modal, overlay, or banner
-  * Try these actions in order: Accept/OK → X button → Close → Skip → Escape key → Click outside
-  * Look for small close buttons, X icons, or dismiss options
-  * If popup persists, refresh page and try again
-  * NEVER proceed with ANY popup visible
-- **POPUP TYPES TO CLOSE**:
-  * Cookie consent (Accept, OK, Allow, I Agree)
-  * Email subscription (X, Close, No Thanks, Skip)
-  * Newsletter signup (X, Close, Not Now, Maybe Later)
-  * Age verification (Yes, I'm 18+, Enter, Continue)
-  * Location permission (Allow, OK, Accept)
-  * Notification permission (Allow, Block, Not Now)
-  * Any overlay, modal, or popup
-- If a page doesn't load properly, refresh and try again
-- If you can't find products, try searching or browsing different categories
-- If checkout requires account creation, try to find guest checkout options
-- If you encounter CAPTCHA, report it and continue with available information
-- Always wait for pages to fully load before proceeding
-- If you get stuck on any step, try refreshing the page and starting that step again
-
-REPORT FORMAT:
-After completing all steps, provide a structured report with:
-- CHECKOUT_URL: [the final checkout page URL]
-- PAYMENT_PROVIDERS: [list of identified payment providers]
-- PRODUCT_ADDED: [description of product added to cart]
-- WEBSITE_NAME: [name of the e-commerce website]
-- STEPS_COMPLETED: [summary of completed steps]
-- ISSUES_ENCOUNTERED: [any problems or limitations encountered]
-- SCREENSHOT_READY: [true/false]
-
+START NOW.
 Website URL: ${websiteUrl}
         `.trim();
     }
@@ -217,7 +119,7 @@ Website URL: ${websiteUrl}
     }
 
     /**
-     * Run the browser task with session timeout management
+     * Run the HyperAgent task with session timeout management
      */
     async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null) {
         let sessionId = null;
@@ -262,18 +164,24 @@ Website URL: ${websiteUrl}
                 progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
             }
 
-            // Start the browser use task with ultra-optimized settings for 5-10 second execution
+            // Start Browser Use task using our own OpenAI keys
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 10, // Ultra-reduced steps for 5-10 second execution
-                maxFailures: 2, // Minimal failures for speed
-                useVision: true, // Enable vision for better page understanding
-                validateOutput: false, // Disable validation for maximum speed
-                keepBrowserOpen: false, // Close browser after task completion
-                maxActionsPerStep: 2, // Limit actions per step for speed
-                plannerInterval: 3, // Check progress very frequently
-                maxInputTokens: 2000 // Reduce token limit for faster processing
+                llm: process.env.OPENAI_LLM || "gpt-4o",
+                plannerLlm: process.env.OPENAI_LLM || "gpt-4o",
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o",
+                maxSteps: 28,
+                maxFailures: 3,
+                useVision: true,
+                validateOutput: false,
+                maxActionsPerStep: 2,
+                plannerInterval: 3,
+                maxInputTokens: 2000,
+                keepBrowserOpen: false,
+                useCustomApiKeys: true,
+                apiKeys: { openai: process.env.OPENAI_API_KEY },
+                sessionOptions
             });
 
             // Race between the task and timeout
@@ -373,7 +281,7 @@ Website URL: ${websiteUrl}
             }
 
             // Get the live URL from session details
-            const liveUrl = sessionDetails.live_url;
+            const liveUrl = sessionDetails.liveUrl || sessionDetails.live_url;
 
             if (!liveUrl) {
                 if (progressCallback) {

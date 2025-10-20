@@ -1,13 +1,13 @@
 const { Hyperbrowser } = require('@hyperbrowser/sdk');
 const { v4: uuidv4 } = require('uuid');
 
-class PaymentURLExtractor {
+class PaymentURLExtractorV2 {
     /**
-     * A web browsing agent that navigates to checkout pages,
-     * fills out forms with random data, and extracts the payment gateway URL.
+     * A web browsing agent that uses HyperAgent to navigate checkout pages,
+     * fill out forms with locale-specific data, and extract the payment gateway URL.
      */
 
-    constructor(timeoutMinutes = 2) { // 2 minutes maximum timeout for safety, but targeting 10-20 seconds
+    constructor(timeoutMinutes = 2) {
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -15,7 +15,7 @@ class PaymentURLExtractor {
         }
         
         // Log the API key being used (first few characters for security)
-        console.log(`🔑 PaymentURLExtractor initializing with Hyperbrowser API Key (first 5 chars): ${apiKey.substring(0, 5)}...`);
+        console.log(`🔑 PaymentURLExtractorV2 initializing with Hyperbrowser API Key (first 5 chars): ${apiKey.substring(0, 5)}...`);
         
         try {
             this.hb = new Hyperbrowser({ apiKey });
@@ -35,6 +35,7 @@ class PaymentURLExtractor {
     _inferCountryProfile(checkoutUrl) {
         const urlStr = (checkoutUrl || '').toLowerCase();
         const has = (s) => urlStr.includes(s);
+        
         // Default profile (EN)
         let profile = {
             code: 'default',
@@ -59,7 +60,7 @@ class PaymentURLExtractor {
                 address: 'Hovedgade 12',
                 postalCode: '8200',
                 city: 'Aarhus',
-                phone: '22 33 11 11', // Danish 8-digit, spaced
+                phone: '22 33 11 11',
                 cardLabel: 'Betalingskort',
                 payLabel: 'Betal nu'
             };
@@ -153,7 +154,7 @@ class PaymentURLExtractor {
      * @param {string} responseText - The raw text response from the agent.
      * @returns {object} A structured object containing extracted information.
      */
-    _parseAgentResponse(responseText) {
+    _parseAgentResponse(responseText, originalCheckoutUrl) {
         if (!responseText) {
             return { error: 'No response from agent' };
         }
@@ -167,6 +168,9 @@ class PaymentURLExtractor {
                 result.payment_url = trimmedLine.replace('PAYMENT_URL:', '').trim();
             } else if (trimmedLine.startsWith('PAYMENT_GATEWAY:')) {
                 result.payment_gateway = trimmedLine.replace('PAYMENT_GATEWAY:', '').trim();
+            } else if (trimmedLine.startsWith('PAYMENT_PROVIDERS:')) {
+                const providersText = trimmedLine.replace('PAYMENT_PROVIDERS:', '').trim();
+                result.payment_providers = providersText.split(',').map(p => p.trim()).filter(p => p);
             } else if (trimmedLine.startsWith('FORM_FILLED:')) {
                 result.form_filled = trimmedLine.replace('FORM_FILLED:', '').trim();
             } else if (trimmedLine.startsWith('CHECKOUT_URL:')) {
@@ -178,6 +182,25 @@ class PaymentURLExtractor {
             } else if (trimmedLine.startsWith('SCREENSHOT_READY:')) {
                 result.screenshot_ready = trimmedLine.replace('SCREENSHOT_READY:', '').trim();
             }
+        }
+
+        // Robust fallback: extract URL tokens from the entire response
+        if (!result.payment_url) {
+            try {
+                const urlRegex = /(https?:\/\/[^\s\]\)\">]+)$/gmi;
+                const matches = [...responseText.matchAll(urlRegex)].map(m => m[1]);
+                const unique = Array.from(new Set(matches));
+                const origHost = (() => { try { return new URL(originalCheckoutUrl || '').host; } catch { return ''; } })();
+                const isExternal = (u) => { try { return origHost && new URL(u).host !== origHost; } catch { return false; } };
+                const looksLikeGateway = (u) => /altapaysecure|altapayplatform|stripe|adyen|klarna|paypal|shopify|checkout|opayo|sagepay|nets|worldpay|braintree|paytrail|payu|vivawallet|mollie|2checkout|paddle|payone|swedbank|safecheckout|secure|payment/.test(u.toLowerCase());
+
+                // Prefer external URLs that look like gateways
+                const preferred = unique.find(u => isExternal(u) && looksLikeGateway(u))
+                    || unique.find(u => looksLikeGateway(u))
+                    || unique.find(u => isExternal(u))
+                    || unique[0];
+                if (preferred) result.payment_url = preferred;
+            } catch {}
         }
 
         result.raw_response = responseText;
@@ -236,46 +259,42 @@ class PaymentURLExtractor {
     }
 
     /**
-     * Get the detailed task description for the payment agent
+     * Get the natural language task description for HyperAgent
      */
     _getTaskDescription(checkoutUrl, profile) {
+        const originalHost = (() => { try { return new URL(checkoutUrl).host; } catch { return ''; } })();
         return `
- Go to ${checkoutUrl} and extract payment gateway URL. Simple task: fill form fields and click pay button. USE EXACT LOCALE DATA BELOW – do NOT invent US defaults when profile is set.
+Go to ${checkoutUrl}. Your ONLY goal: reach the FINAL external payment page (the one that shows card inputs) and return its exact URL.
 
-STEPS:
-1. Close popups (Accept, OK, X, Close)
-2. Fill form fields ONE BY ONE in this EXACT order (no hesitation, no skipping):
-   a) Email: "test@example.com"
-   b) First Name: "${profile.firstName}"
-   c) Last Name: "${profile.lastName}"
-   d) Address: "${profile.address}"
-   e) Postal Code/ZIP/Postnummer: "${profile.postalCode}" (CRITICAL - must be filled for delivery validation)
-   f) City: "${profile.city}"
-   g) Phone: "${profile.phone}"
-   h) Country: match currently selected country; if dropdown exists, keep ${profile.code.toUpperCase()} selected
-   i) Company: "${profile.company || ''}" (if field exists)
-3. Select "${profile.cardLabel}" payment
-4. Click "${profile.payLabel}" button
-5. Copy the payment gateway URL
+Fill checkout quickly with:
+- Email: test@example.com
+- First Name: ${profile.firstName}
+- Last Name: ${profile.lastName}
+- Address: ${profile.address}
+- Postal Code: ${profile.postalCode}
+- City: ${profile.city}
+- Phone: ${profile.phone}
+- Country: ${profile.code.toUpperCase()}
 
-RULES:
-- Fill fields ONE BY ONE in the exact order listed above (a, b, c, d, e, f, g, h, i)
-- NO HESITATION - fill each field immediately when you see it
-- Fill EVERY field with red border or error message
-- Use TAB to navigate between fields
-- POSTAL CODE IS CRITICAL - must be filled for delivery validation
-- Do NOT skip any fields - fill ALL visible fields
-- Wait for delivery options after filling address (do NOT click pay until delivery methods appear)
-- Only click pay button after ALL fields filled
-- Extract URL when payment page loads
+Then choose card payment and CONTINUE until redirected to the external payment provider.
 
-REPORT:
+Rules:
+- The payment page MUST be on a DIFFERENT DOMAIN than ${originalHost}.
+- When you are on the payment page, set PAYMENT_URL to EXACTLY the address bar URL with this sequence:
+  1) Focus address bar (Windows/Linux: Ctrl+L; macOS: Cmd+L)
+  2) Copy (Windows/Linux: Ctrl+C; macOS: Cmd+C)
+  3) Paste that exact string into the output as PAYMENT_URL. Do NOT modify it.
+- Do not stop on merchant domain pages or intermediate review/processing steps.
+- DO NOT enter card number/CVV/expiry. Stop at the payment form.
+
+Output ONLY these lines:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes
-PAYMENT_URL: [gateway URL]
-PAYMENT_GATEWAY: [provider name]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [problems]
+PAYMENT_URL: [paste EXACT window.location.href here]
+PAYMENT_GATEWAY: [provider name if visible]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [very short]
+ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
         `.trim();
     }
@@ -287,27 +306,20 @@ SCREENSHOT_READY: Yes
         const isDK = profile && profile.code === 'dk';
         return {
             accept_cookies: true,
-            headless: true, // Use headless for faster execution
+            headless: true,
             user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport_width: 1280, // Smaller viewport for faster rendering
+            viewport_width: 1280,
             viewport_height: 720,
-            enable_web_recording: true,
-            block_ads: true, // Block ads for faster loading
-            block_trackers: true, // Block trackers for faster loading
-            disable_images: false, // Keep images for better form recognition
-            disable_javascript: false, // Keep JS for modern checkout forms
-            timeout: 30000, // 30 second page load timeout
             accept_language: profile.acceptLanguage,
-            preferred_languages: profile.acceptLanguage ? profile.acceptLanguage.split(',').map(s => s.split(';')[0]) : undefined,
             timezone: isDK ? 'Europe/Copenhagen' : undefined,
             locale: isDK ? 'da-DK' : undefined
         };
     }
 
     /**
-     * Run the browser task with session timeout management
+     * Run the HyperAgent task with session timeout management
      */
-    async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null) {
+    async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null, context = {}) {
         let sessionId = null;
         let timeoutId = null;
 
@@ -328,7 +340,6 @@ SCREENSHOT_READY: Yes
             const timeoutMs = this.timeoutMinutes * 60 * 1000;
             const timeoutPromise = new Promise((_, reject) => {
                 timeoutId = setTimeout(async () => {
-                    // Actively stop the Hyperbrowser session to prevent credit usage
                     try {
                         if (sessionId) {
                             await this.hb.sessions.stop(sessionId);
@@ -346,26 +357,32 @@ SCREENSHOT_READY: Yes
             });
 
             if (progressCallback) {
-                progressCallback("🤖 Starting payment gateway extraction task...");
-                progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
+                progressCallback("🤖 Starting Browser Use payment gateway extraction...");
+                progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes`);
             }
 
-            // Start the browser use task with focused settings for simple form filling
-            const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
+            // Start the Browser Use task with our own OpenAI keys
+            const browserUsePromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 12, // Focused steps for simple task
-                maxFailures: 3, // Minimal failures for speed
-                useVision: true, // Enable vision for form recognition
-                validateOutput: false, // Disable validation for speed
-                keepBrowserOpen: false, // Close browser after completion
-                maxActionsPerStep: 4, // Focused actions per step
-                plannerInterval: 3, // Check progress frequently
-                maxInputTokens: 1500 // Reduced tokens for lean prompt
+                llm: process.env.OPENAI_LLM || "gpt-4o",
+                plannerLlm: process.env.OPENAI_LLM || "gpt-4o",
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o",
+                maxSteps: 22,
+                maxFailures: 3,
+                useVision: true,
+                validateOutput: false,
+                maxActionsPerStep: 2,
+                plannerInterval: 3,
+                maxInputTokens: 2000,
+                keepBrowserOpen: false,
+                useCustomApiKeys: true,
+                apiKeys: { openai: process.env.OPENAI_API_KEY },
+                sessionOptions
             });
 
             // Race between the task and timeout
-            const result = await Promise.race([browserTaskPromise, timeoutPromise]);
+            const result = await Promise.race([browserUsePromise, timeoutPromise]);
 
             // Clear timeout since we completed successfully
             if (timeoutId) {
@@ -373,7 +390,7 @@ SCREENSHOT_READY: Yes
             }
 
             if (progressCallback) {
-                progressCallback("✅ Payment gateway extraction completed successfully!");
+                progressCallback("✅ Browser Use payment gateway extraction completed successfully!");
             }
 
             // Capture screenshot before stopping the session
@@ -382,13 +399,13 @@ SCREENSHOT_READY: Yes
             // Parse the agent response
             let parsedResult = {};
             if (result && result.data && result.data.finalResult) {
-                parsedResult = this._parseAgentResponse(result.data.finalResult);
+                parsedResult = this._parseAgentResponse(result.data.finalResult, context && context.originalCheckoutUrl);
             } else if (result && result.finalResult) {
-                parsedResult = this._parseAgentResponse(result.finalResult);
+                parsedResult = this._parseAgentResponse(result.finalResult, context && context.originalCheckoutUrl);
             } else {
                 // Fallback if no structured response
                 parsedResult = {
-                    checkout_url: 'Unknown',
+                    checkout_url: context && context.originalCheckoutUrl,
                     form_filled: 'Unknown',
                     payment_url: null,
                     payment_gateway: 'Unknown',
@@ -442,7 +459,7 @@ SCREENSHOT_READY: Yes
     }
 
     /**
-     * Extracts the payment gateway URL from a given checkout URL.
+     * Extracts the payment gateway URL from a given checkout URL using HyperAgent.
      * @param {string} checkoutUrl - The URL of the checkout page.
      * @param {function} progressCallback - Callback for real-time progress updates.
      * @returns {Promise<object>} An object containing payment_url, payment_gateway, and screenshot data.
@@ -450,7 +467,7 @@ SCREENSHOT_READY: Yes
     async extractPaymentURLWithStreaming(checkoutUrl, progressCallback = null) {
         try {
             if (progressCallback) {
-                progressCallback("🚀 Starting payment gateway URL extraction...");
+                progressCallback("🚀 Starting HyperAgent payment gateway URL extraction...");
             }
 
             const profile = this._inferCountryProfile(checkoutUrl);
@@ -460,11 +477,12 @@ SCREENSHOT_READY: Yes
             const result = await this._runWithSessionTimeout(
                 taskDescription, 
                 sessionOptions, 
-                progressCallback
+                progressCallback,
+                { originalCheckoutUrl: checkoutUrl }
             );
 
             if (progressCallback) {
-                progressCallback("✅ Payment gateway URL extraction completed!");
+                progressCallback("✅ HyperAgent payment gateway URL extraction completed!");
             }
 
             return result;
@@ -478,4 +496,4 @@ SCREENSHOT_READY: Yes
     }
 }
 
-module.exports = { PaymentURLExtractor };
+module.exports = { PaymentURLExtractorV2 };
