@@ -120,142 +120,37 @@ class PaymentURLExtractor {
      */
     _getTaskDescription(checkoutUrl) {
         return `
-You are a PRECISE payment gateway extraction agent. Your goal: navigate to ${checkoutUrl}, fill forms with country-appropriate data, select card payment, click pay button, and extract the payment gateway URL.
+Go to ${checkoutUrl} and extract payment gateway URL. Simple task: fill form fields and click pay button.
 
-SIMPLE 4-STEP PROCESS:
-1. Close popups and fill contact/delivery fields
-2. Fill address details with correct country data
-3. Select "pay with card" option
-4. Click "pay now" button to reach payment gateway
+STEPS:
+1. Close popups (Accept, OK, X, Close)
+2. Fill ALL form fields with this data:
+   - Email: "test@example.com"
+   - First Name: "John" (or Fornavn, Vorname, Nome, etc.)
+   - Last Name: "Smith" (or Efternavn, Nachname, Cognome, etc.)
+   - Address: "123 Main St" (or Adresse, Indirizzo, Dirección, etc.)
+   - Postal Code: "12345" (or Postnummer: "8200", PLZ: "10115", CAP: "20100", etc.)
+   - City: "New York" (or By, Stadt, Città, Ciudad, etc.)
+   - Phone: "12345678" (8 digits for Danish, +country code for others)
+3. Select "Credit Card" or "Betalingskort" payment
+4. Click "Pay Now" or "Betal nu" button
+5. Copy the payment gateway URL
 
-STEP 1 - CLOSE POPUPS & FILL BASIC INFO (3 seconds)
-- Go to: ${checkoutUrl}
-- **IMMEDIATELY close ALL popups**: Click "Accept", "OK", "Allow", "X", "Close", "Skip"
-- Fill basic fields:
-  * Email: "test@example.com"
-  * Marketing checkbox: Leave as is
-  * Country: Select the country shown or first option
+RULES:
+- Fill EVERY field with red border or error message
+- Use TAB to navigate between fields
+- Wait for delivery options after filling address
+- Only click pay button after ALL fields filled
+- Extract URL when payment page loads
 
-STEP 2 - FILL ALL REQUIRED FIELDS WITH COUNTRY-APPROPRIATE DATA (8 seconds)
-**CRITICAL: Fill EVERY SINGLE FIELD - No exceptions! Look for red borders, error messages, asterisks (*)**
-
-**DETECT COUNTRY from page language/currency and use correct data:**
-
-**DENMARK (Danish language/currency):**
-- Fornavn: "Lars" (REQUIRED - First Name)
-- Efternavn: "Hansen" (REQUIRED - Last Name)
-- Firma: "Test Company" (if present)
-- Adresse: "Hovedgade 123" (REQUIRED - Address)
-- Postnummer: "8200" (REQUIRED - always 4 digits)
-- By: "Aarhus" (REQUIRED - City)
-- Telefon: "12345678" (REQUIRED - 8 digits, no country code)
-
-**GERMANY (German language/currency):**
-- Vorname: "Hans" (REQUIRED - First Name)
-- Nachname: "Müller" (REQUIRED - Last Name)
-- Firma: "Test Company" (if present)
-- Adresse: "Hauptstraße 12" (REQUIRED - Address)
-- PLZ: "10115" (REQUIRED - 5 digits)
-- Stadt: "Berlin" (REQUIRED - City)
-- Telefon: "+49 30 12345678" (REQUIRED - valid German format)
-
-**ITALY (Italian language/currency):**
-- Nome: "Giuseppe" (REQUIRED - First Name)
-- Cognome: "Rossi" (REQUIRED - Last Name)
-- Azienda: "Test Company" (if present)
-- Indirizzo: "Via Roma 45" (REQUIRED - Address)
-- CAP: "20100" (REQUIRED - 5 digits)
-- Città: "Milano" (REQUIRED - City)
-- Telefono: "+39 02 12345678" (REQUIRED - valid Italian format)
-
-**SPAIN (Spanish language/currency):**
-- Nombre: "Carlos" (REQUIRED - First Name)
-- Apellido: "Lopez" (REQUIRED - Last Name)
-- Empresa: "Test Company" (if present)
-- Dirección: "Calle Mayor 8" (REQUIRED - Address)
-- Código postal: "28001" (REQUIRED - 5 digits)
-- Ciudad: "Madrid" (REQUIRED - City)
-- Teléfono: "+34 91 12345678" (REQUIRED - valid Spanish format)
-
-**POLAND (Polish language/currency):**
-- Imię: "Jan" (REQUIRED - First Name)
-- Nazwisko: "Kowalski" (REQUIRED - Last Name)
-- Firma: "Test Company" (if present)
-- Adres: "ul. Marszałkowska 123" (REQUIRED - Address)
-- Kod pocztowy: "00-001" (REQUIRED - XX-XXX format)
-- Miasto: "Warszawa" (REQUIRED - City)
-- Telefon: "+48 22 12345678" (REQUIRED - valid Polish format)
-
-**FRANCE (French language/currency):**
-- Prénom: "Marie" (REQUIRED - First Name)
-- Nom: "Dubois" (REQUIRED - Last Name)
-- Société: "Test Company" (if present)
-- Adresse: "Rue de Rivoli 123" (REQUIRED - Address)
-- Code postal: "75001" (REQUIRED - 5 digits)
-- Ville: "Paris" (REQUIRED - City)
-- Téléphone: "+33 1 23 45 67 89" (REQUIRED - valid French format)
-
-**DEFAULT (English/other):**
-- First Name: "John" (REQUIRED)
-- Last Name: "Smith" (REQUIRED)
-- Company: "Test Company" (if present)
-- Address: "123 Main St" (REQUIRED)
-- Postal Code: "12345" (REQUIRED)
-- City: "New York" (REQUIRED)
-- Phone: "+1 555 123 4567" (REQUIRED)
-
-**MANDATORY FIELD FILLING RULES - CRITICAL FOR PAYMENT PAGE ACCESS:**
-- **SCAN ENTIRE PAGE** for ALL input fields, dropdowns, checkboxes, radio buttons
-- **Fill EVERY SINGLE FIELD** - No exceptions! Look for red borders, asterisks (*), error messages
-- **Look for validation errors** like "Indtast efternavn", "Indtast adresse", "Indtast postnummer", "Indtast et gyldigt telefonnummer"
-- **Use TAB key** to navigate between fields systematically
-- **Check for hidden/conditional fields** that appear after filling other fields
-- **Billing address**: Select "same as delivery" if available, otherwise fill separately
-- **Delivery method**: Select first available option after address is complete
-- **Payment method**: Select "Credit/Debit Card" or "Betalingskort"
-- **DO NOT PROCEED** until ALL red borders, error messages, and validation warnings are gone
-- **CRITICAL**: Form must be 100% complete before payment button becomes available
-
-STEP 3 - SELECT CARD PAYMENT (2 seconds)
-- Look for payment options:
-  * "Credit/Debit Card", "Betalingskort", "Carte", "Karte", "Tarjeta", "Karta"
-  * "Pay with Card", "Paga con carta", "Bezahlen mit Karte"
-- **SELECT CARD PAYMENT** (avoid PayPal, MobilePay, Klarna, Apple Pay, Google Pay)
-
-STEP 4 - CLICK PAY BUTTON (2 seconds)
-- Look for payment buttons:
-  * "Pay Now", "Betal nu", "Paga ora", "Bezahlen", "Pagar", "Zapłać", "Payer"
-  * "Complete Order", "Place Order", "Finalize Payment"
-- **CLICK THE PAY BUTTON** to reach payment gateway
-
-STEP 5 - EXTRACT PAYMENT URL (1 second)
-- **WAIT** for payment gateway page to load
-- **COPY** the current URL - this is the payment gateway URL
-- **IDENTIFY** payment provider (Stripe, Adyen, etc.)
-
-CRITICAL RULES - PAYMENT PAGE ACCESS DEPENDS ON COMPLETE FORM:
-- **ALWAYS close popups first** - Never proceed with popups visible
-- **Use correct country data** - Match postal codes, phone formats to country
-- **Fill EVERY SINGLE FIELD** - No exceptions! Look for red borders, error messages, asterisks
-- **Check for validation errors** - Look for messages like "Indtast efternavn", "Indtast adresse", "Indtast postnummer"
-- **Danish phone format** - Use 8 digits only: "12345678" (no +45)
-- **Wait for delivery options** - Fill address completely before delivery method appears
-- **Fill postnummer correctly** - Danish: 4 digits (8200), German: 5 digits (10115), etc.
-- **Only click pay button** after ALL fields filled, ALL errors gone, and card selected
-- **Extract payment URL immediately** when gateway loads
-- **NEVER skip fields** - Every empty field with red border must be filled
-- **FORM COMPLETION IS MANDATORY** - Payment page will not load without complete form
-
-REPORT FORMAT:
+REPORT:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes
-PAYMENT_URL: [payment gateway URL]
+PAYMENT_URL: [gateway URL]
 PAYMENT_GATEWAY: [provider name]
 STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any problems]
+ISSUES_ENCOUNTERED: [problems]
 SCREENSHOT_READY: Yes
-
-START NOW - BE PRECISE AND EFFICIENT!
         `.trim();
     }
 
@@ -324,18 +219,18 @@ START NOW - BE PRECISE AND EFFICIENT!
                 progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
             }
 
-            // Start the browser use task with thorough settings for complete form filling
+            // Start the browser use task with focused settings for simple form filling
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                maxSteps: 18, // More steps for thorough field filling
-                maxFailures: 5, // Allow failures for complex forms
-                useVision: true, // Enable vision for better form understanding
-                validateOutput: false, // Disable validation for maximum speed
-                keepBrowserOpen: false, // Close browser after task completion
-                maxActionsPerStep: 6, // More actions per step for field filling
-                plannerInterval: 5, // Check progress regularly
-                maxInputTokens: 2800 // More tokens for detailed field instructions
+                maxSteps: 12, // Focused steps for simple task
+                maxFailures: 3, // Minimal failures for speed
+                useVision: true, // Enable vision for form recognition
+                validateOutput: false, // Disable validation for speed
+                keepBrowserOpen: false, // Close browser after completion
+                maxActionsPerStep: 4, // Focused actions per step
+                plannerInterval: 3, // Check progress frequently
+                maxInputTokens: 1500 // Reduced tokens for lean prompt
             });
 
             // Race between the task and timeout
