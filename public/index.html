@@ -5,263 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment Provider Checkout URL Extractor</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .header p {
-            font-size: 1.2rem;
-            opacity: 0.9;
-        }
-
-        .main-content {
-            padding: 40px;
-        }
-
-        .input-section {
-            background: #f8f9fa;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
-
-        .input-section h2 {
-            color: #333;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #555;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e1e5e9;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .checkbox-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            width: auto;
-            margin-right: 10px;
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .loading-spinner {
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffffff;
-            border-top: 2px solid transparent;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .progress-section {
-            background: #e3f2fd;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: none;
-        }
-
-        .progress-section h3 {
-            color: #1976d2;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .progress-log {
-            background: white;
-            border-radius: 10px;
-            padding: 20px;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid #e1e5e9;
-        }
-
-        .log-entry {
-            padding: 10px 0;
-            border-bottom: 1px solid #f0f0f0;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-        }
-
-        .log-entry:last-child {
-            border-bottom: none;
-        }
-
-        .log-timestamp {
-            color: #666;
-            margin-right: 10px;
-        }
-
-        .results-section {
-            background: #e8f5e8;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: none;
-        }
-
-        .results-section h3 {
-            color: #2e7d32;
-            margin-bottom: 20px;
-            font-size: 1.3rem;
-        }
-
-        .result-card {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            border: 1px solid #c8e6c9;
-        }
-
-        .result-item {
-            margin-bottom: 15px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-
-        .result-item strong {
-            color: #2e7d32;
-        }
-
-        .screenshot-section {
-            margin-top: 20px;
-            padding: 20px;
-            background: #f0f8ff;
-            border-radius: 10px;
-            border: 1px solid #b3d9ff;
-        }
-
-        .screenshot-container {
-            margin-top: 15px;
-        }
-
-        .screenshot-image {
-            max-width: 100%;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        .screenshot-image:hover {
-            transform: scale(1.02);
-        }
-
-        .screenshot-placeholder {
-            padding: 40px;
-            text-align: center;
-            background: #f5f5f5;
-            border-radius: 8px;
-            color: #666;
-            border: 2px dashed #ccc;
-        }
-
-        .error-section {
-            background: #ffebee;
-            padding: 30px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            display: none;
-        }
-
-        .error-section h3 {
-            color: #c62828;
-            margin-bottom: 15px;
-        }
-
-        .error-section p {
-            color: #d32f2f;
-            font-weight: 500;
-        }
-
+        :root { --bg:#0e1a1a; --panel:#0f2323; --panel-alt:#123131; --text:#e8f1ef; --muted:#a6b6b3; --accent:#c9ff5a; --accent-2:#2b5c4f; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter', system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); color: var(--text); min-height:100vh; padding:20px; }
+        .container { max-width:1100px; margin:0 auto; background: var(--panel); border:1px solid var(--accent-2); border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.35); overflow:hidden; }
+        .site-nav { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--accent-2); background:rgba(11,59,50,.35); }
+        .site-nav .brand { color:var(--accent); font-weight:800; letter-spacing:.3px; }
+        .site-nav .links { display:flex; gap:10px; }
+        .site-nav .links a { color:var(--accent); text-decoration:none; font-weight:700; background:rgba(201,255,90,.08); border:1px solid var(--accent-2); padding:8px 12px; border-radius:8px; }
+        .site-nav .links a:hover { background:rgba(201,255,90,.16); }
+        .header { background: linear-gradient(180deg, rgba(11,59,50,.7), rgba(11,59,50,.3)); border-bottom:1px solid var(--accent-2); color:var(--text); padding:24px; text-align:center; }
+        .header h1 { font-size:2.2rem; margin-bottom:8px; color: var(--accent); font-weight:700; }
+        .header p { color: var(--muted); }
+        .main-content { padding:28px; }
+        .input-section { background: var(--panel-alt); border:1px solid var(--accent-2); border-radius:10px; padding:22px; margin-bottom:22px; }
+        .input-section h2 { color: var(--accent); margin-bottom:16px; font-size:1.3rem; }
+        .form-group { margin-bottom:16px; }
+        .form-group label { display:block; margin-bottom:8px; font-weight:600; color:var(--text); }
+        .form-group input { width:100%; padding:12px; border:1px solid var(--accent-2); border-radius:8px; background: var(--panel); color:var(--text); font-size:16px; }
+        .form-group input:focus { outline:none; border-color: var(--accent); box-shadow:0 0 0 2px rgba(201,255,90,.15); }
+        .checkbox-group { display:flex; align-items:center; gap:10px; margin-bottom:16px; color:var(--muted); }
+        .btn { background: var(--accent); color:#0b3b32; border:none; padding:12px 20px; border-radius:8px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:10px; box-shadow:0 6px 16px rgba(201,255,90,.2); }
+        .btn:hover { transform: translateY(-1px); box-shadow:0 10px 22px rgba(201,255,90,.25); }
+        .btn:disabled { opacity:.6; cursor:not-allowed; }
+        .loading-spinner { width:18px; height:18px; border:2px solid #0b3b32; border-top:2px solid transparent; border-radius:50%; animation:spin 1s linear infinite; }
+        @keyframes spin { 0%{transform:rotate(0)} 100%{transform:rotate(360deg)} }
+        .progress-section { background: var(--panel-alt); border:1px solid var(--accent-2); border-radius:10px; padding:20px; margin-bottom:22px; display:none; }
+        .progress-section h3 { color: var(--accent); margin-bottom:12px; }
+        .progress-log { background: var(--panel); border:1px solid var(--accent-2); border-radius:8px; padding:14px; max-height:360px; overflow:auto; }
+        .log-entry { padding:8px 0; border-bottom:1px solid var(--accent-2); font-family:'Courier New', monospace; font-size:14px; color:var(--muted); }
+        .log-entry:last-child { border-bottom:none; }
+        .log-timestamp { color:#7fa39a; margin-right:8px; }
+        .results-section { background: var(--panel-alt); border:1px solid var(--accent-2); border-radius:10px; padding:20px; margin-bottom:22px; display:none; }
+        .results-section h3 { color: var(--accent); margin-bottom:12px; }
+        .result-card { background: var(--panel); border:1px solid var(--accent-2); border-radius:8px; padding:18px; }
+        .result-item { margin-bottom:12px; padding:10px; background: var(--panel-alt); border:1px solid var(--accent-2); border-radius:8px; }
+        .result-item strong { color: var(--accent); }
+        .screenshot-section { margin-top:16px; padding:16px; background: var(--panel); border:1px solid var(--accent-2); border-radius:8px; }
+        .screenshot-container { margin-top:10px; }
+        .screenshot-image { max-width:100%; border-radius:8px; }
+        .screenshot-placeholder { padding:28px; text-align:center; background: var(--panel-alt); border:1px dashed var(--accent-2); color:var(--muted); border-radius:8px; }
+        .error-section { background:#3b1212; border:1px solid #5e1b1b; color:#ffb3b3; border-radius:10px; padding:20px; display:none; }
+        .error-section h3 { color:#ffb3b3; margin-bottom:10px; }
         /* Modal styles */
         .modal {
             display: none;
@@ -317,7 +102,15 @@
     </style>
 </head>
 <body>
-    <div class="container">
+     <div class="container">
+         <div class="site-nav">
+             <div class="brand">Radiant · Extractor</div>
+             <div class="links">
+                 <a href="/">Checkout</a>
+                 <a href="/paymenturlfinder">Payment</a>
+                 <a href="/api">API / Docs</a>
+             </div>
+         </div>
         <div class="header">
             <h1>🛒 Payment Provider Checkout URL Extractor</h1>
             <p>AI-powered e-commerce analysis with real-time progress tracking</p>

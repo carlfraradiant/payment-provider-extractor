@@ -44,6 +44,12 @@
             border: 1px solid var(--accent-2);
         }
 
+        .site-nav { display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--accent-2); background:rgba(11,59,50,.35); margin-bottom:12px; border-radius:8px; }
+        .site-nav .brand { color:var(--accent); font-weight:800; letter-spacing:.3px; }
+        .site-nav .links { display:flex; gap:10px; }
+        .site-nav .links a { color:var(--accent); text-decoration:none; font-weight:700; background:rgba(201,255,90,.08); border:1px solid var(--accent-2); padding:8px 12px; border-radius:8px; }
+        .site-nav .links a:hover { background:rgba(201,255,90,.16); }
+
         /* Header */
         .header {
             text-align: center;
@@ -236,6 +242,14 @@
 </head>
 <body>
     <div class="container">
+        <div class="site-nav">
+            <div class="brand">Radiant · Extractor</div>
+            <div class="links">
+                <a href="/">Checkout</a>
+                <a href="/paymenturlfinder">Payment</a>
+                <a href="/api">API / Docs</a>
+            </div>
+        </div>
         <a href="/" class="back-link">← Back to Main Interface</a>
         
         <div class="header">
