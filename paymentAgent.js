@@ -148,7 +148,7 @@ STEP 2 - FILL ALL REQUIRED FIELDS WITH COUNTRY-APPROPRIATE DATA (8 seconds)
 - Adresse: "Hovedgade 123" (REQUIRED - Address)
 - Postnummer: "8200" (REQUIRED - always 4 digits)
 - By: "Aarhus" (REQUIRED - City)
-- Telefon: "+45 12 34 56 78" (REQUIRED - valid Danish format)
+- Telefon: "12345678" (REQUIRED - 8 digits, no country code)
 
 **GERMANY (German language/currency):**
 - Vorname: "Hans" (REQUIRED - First Name)
@@ -204,15 +204,17 @@ STEP 2 - FILL ALL REQUIRED FIELDS WITH COUNTRY-APPROPRIATE DATA (8 seconds)
 - City: "New York" (REQUIRED)
 - Phone: "+1 555 123 4567" (REQUIRED)
 
-**MANDATORY FIELD FILLING RULES:**
-- **SCAN ENTIRE PAGE** for ALL input fields, dropdowns, checkboxes
-- **Fill EVERY field** that has a red border, asterisk (*), or error message
-- **Look for validation errors** like "Indtast efternavn", "Indtast adresse", "Indtast postnummer"
+**MANDATORY FIELD FILLING RULES - CRITICAL FOR PAYMENT PAGE ACCESS:**
+- **SCAN ENTIRE PAGE** for ALL input fields, dropdowns, checkboxes, radio buttons
+- **Fill EVERY SINGLE FIELD** - No exceptions! Look for red borders, asterisks (*), error messages
+- **Look for validation errors** like "Indtast efternavn", "Indtast adresse", "Indtast postnummer", "Indtast et gyldigt telefonnummer"
 - **Use TAB key** to navigate between fields systematically
 - **Check for hidden/conditional fields** that appear after filling other fields
 - **Billing address**: Select "same as delivery" if available, otherwise fill separately
 - **Delivery method**: Select first available option after address is complete
-- **DO NOT PROCEED** until ALL red borders and error messages are gone
+- **Payment method**: Select "Credit/Debit Card" or "Betalingskort"
+- **DO NOT PROCEED** until ALL red borders, error messages, and validation warnings are gone
+- **CRITICAL**: Form must be 100% complete before payment button becomes available
 
 STEP 3 - SELECT CARD PAYMENT (2 seconds)
 - Look for payment options:
@@ -231,15 +233,18 @@ STEP 5 - EXTRACT PAYMENT URL (1 second)
 - **COPY** the current URL - this is the payment gateway URL
 - **IDENTIFY** payment provider (Stripe, Adyen, etc.)
 
-CRITICAL RULES:
+CRITICAL RULES - PAYMENT PAGE ACCESS DEPENDS ON COMPLETE FORM:
 - **ALWAYS close popups first** - Never proceed with popups visible
 - **Use correct country data** - Match postal codes, phone formats to country
 - **Fill EVERY SINGLE FIELD** - No exceptions! Look for red borders, error messages, asterisks
-- **Check for validation errors** - Look for messages like "Indtast efternavn", "Indtast adresse"
+- **Check for validation errors** - Look for messages like "Indtast efternavn", "Indtast adresse", "Indtast postnummer"
+- **Danish phone format** - Use 8 digits only: "12345678" (no +45)
 - **Wait for delivery options** - Fill address completely before delivery method appears
+- **Fill postnummer correctly** - Danish: 4 digits (8200), German: 5 digits (10115), etc.
 - **Only click pay button** after ALL fields filled, ALL errors gone, and card selected
 - **Extract payment URL immediately** when gateway loads
 - **NEVER skip fields** - Every empty field with red border must be filled
+- **FORM COMPLETION IS MANDATORY** - Payment page will not load without complete form
 
 REPORT FORMAT:
 CHECKOUT_URL: ${checkoutUrl}
