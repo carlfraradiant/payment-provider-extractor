@@ -287,6 +287,13 @@ Rules:
 - Do not stop on merchant domain pages or intermediate review/processing steps.
 - DO NOT enter card number/CVV/expiry. Stop at the payment form.
 
+${profile.code === 'it' ? `SPECIAL RULE FOR ITALIAN WEBSHOPS:
+- Many Italian checkouts embed the card fields directly on the same checkout page (no redirect).
+- On an .it site or when the locale indicates Italy, as soon as you see card inputs on the main checkout (labels like "Numero di carta", "Mese/Anno", "Codice di sicurezza", or logos Visa/Mastercard in the payment box), TREAT THIS PAGE AS THE PAYMENT PAGE.
+- Immediately extract visible payment providers (text like "Pagamenti sicuri con [Provider]", logos, or mentions like PayPal, Stripe, Nexi, Axerve, Gestpay, etc.).
+- Set PAYMENT_URL to EXACTLY the current page URL (window.location.href) and DO NOT attempt to proceed off-site.
+- Continue to follow the no-card-entry rule: never type card numbers or CVV. Stop at identification of providers and URL.` : ''}
+
 Output ONLY these lines:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes

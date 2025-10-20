@@ -31,6 +31,30 @@ app.use(express.static('public'));
 // Store active sessions
 const activeSessions = new Map();
 
+// Helper: schedule a hard timeout for session records to stop endless polling
+function scheduleSessionTimeout(sessionId, minutes = 2.5, slackMs = 2000) {
+    const timeoutMs = Math.round(minutes * 60 * 1000 + slackMs);
+    setTimeout(() => {
+        const session = activeSessions.get(sessionId);
+        if (!session) return;
+        // If still not terminal, mark as error/timeout so clients stop polling
+        const isTerminal = session.status === 'completed' || session.status === 'error';
+        if (!isTerminal) {
+            session.status = 'error';
+            session.error = `Timed out after ${minutes} minutes`;
+            session.end_time = new Date().toISOString();
+            session.progress = session.progress || [];
+            session.progress.push({
+                message: `🛑 Server timeout: stopped polling after ${minutes} minutes`,
+                timestamp: session.end_time
+            });
+            if (io) {
+                io.emit('analysis_error', { session_id: sessionId, error: session.error });
+            }
+        }
+    }, timeoutMs);
+}
+
 // Web Progress Callback class
 class WebProgressCallback {
     constructor(sessionId) {
@@ -83,6 +107,9 @@ app.post('/api/analyze', async (req, res) => {
             progress: [],
             result: null
         });
+
+        // Ensure polling callers stop after hard timeout
+        scheduleSessionTimeout(sessionId, 2.5, 2000);
 
         // Start analysis in background
         setImmediate(async () => {
@@ -239,6 +266,9 @@ app.post('/api/payment/extract', async (req, res) => {
             progress: [],
             result: null
         });
+
+        // Ensure polling callers stop after hard timeout
+        scheduleSessionTimeout(sessionId, 2.5, 2000);
 
         // Start analysis in background
         setImmediate(async () => {
