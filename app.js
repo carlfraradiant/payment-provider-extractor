@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 require('dotenv').config();
 
 const { CheckoutURLExtractor } = require('./checkoutAgent');
-const { PaymentURLExtractor } = require('./paymentAgent');
+const { PaymentURLExtractorV2 } = require('./paymentAgentV2'); // Updated to use HyperAgent version
 
 const app = express();
 const server = http.createServer(app);
@@ -245,8 +245,8 @@ app.post('/api/payment/extract', async (req, res) => {
             try {
                 console.log(`🚀 Starting payment extraction for: ${websiteUrl}`);
                 
-                const extractor = new PaymentURLExtractor(2); // 2 minute maximum timeout
-                console.log("✅ PaymentURLExtractor initialized successfully");
+                const extractor = new PaymentURLExtractorV2(2); // 2 minute maximum timeout
+                console.log("✅ PaymentURLExtractorV2 initialized successfully");
                 
                 const progressCallback = new WebProgressCallback(sessionId);
                 
@@ -362,8 +362,8 @@ app.get('/api/payment/:encoded_url(*)', async (req, res) => {
         console.log(`🚀 Starting SYNCHRONOUS payment extraction for: ${checkoutUrl}`);
         
         try {
-            const extractor = new PaymentURLExtractor(2); // 2 minute maximum timeout
-            console.log("✅ PaymentURLExtractor initialized successfully");
+            const extractor = new PaymentURLExtractorV2(2); // 2 minute maximum timeout
+            console.log("✅ PaymentURLExtractorV2 initialized successfully");
             
             const progressCallback = new WebProgressCallback(sessionId);
             
