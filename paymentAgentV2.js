@@ -372,9 +372,9 @@ SCREENSHOT_READY: Yes
             const browserUsePromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                llm: process.env.OPENAI_LLM || "gpt-4o",
-                plannerLlm: process.env.OPENAI_LLM || "gpt-4o",
-                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o",
+                llm: process.env.OPENAI_LLM || "gpt-4o-mini",
+                plannerLlm: process.env.OPENAI_LLM || "gpt-4o-mini",
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o-mini",
                 maxSteps: 22,
                 maxFailures: 3,
                 useVision: true,
