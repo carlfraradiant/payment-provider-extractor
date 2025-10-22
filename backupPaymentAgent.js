@@ -264,9 +264,16 @@ class PaymentURLExtractorV2 {
     _getTaskDescription(checkoutUrl, profile) {
         const originalHost = (() => { try { return new URL(checkoutUrl).host; } catch { return ''; } })();
         return `
-Go to ${checkoutUrl}. Your ONLY goal: reach the FINAL external payment page (the one that shows card inputs) and return its exact URL.
+AGGRESSIVE PAYMENT EXTRACTION - NO DELAYS! Start at ${checkoutUrl}. Target: external payment page in 20 seconds.
 
-Fill checkout quickly with:
+IMMEDIATE ACTIONS (DO NOT WAIT):
+1) CLICK "Shop" or "Produits" or "Collection" or "Boutique" - FIND PRODUCTS NOW!
+2) CLICK first available product immediately
+3) CLICK "Add to Cart" / "Ajouter au panier" / "Acheter" - ADD TO CART NOW!
+4) CLICK "Cart" / "Panier" / "Caisse" - GO TO CART NOW!
+5) CLICK "Checkout" / "Commander" / "Finaliser" - START CHECKOUT NOW!
+
+FORM FILLING (RAPID):
 - Email: test@example.com
 - First Name: ${profile.firstName}
 - Last Name: ${profile.lastName}
@@ -276,26 +283,27 @@ Fill checkout quickly with:
 - Phone: ${profile.phone}
 - Country: ${profile.code.toUpperCase()}
 
-Then choose card payment and CONTINUE until redirected to the external payment provider.
+PAYMENT SELECTION:
+- Choose "Credit Card" / "Carte bancaire" / "Pay with card"
+- Click "Continue" / "Next" / "Proceed" until EXTERNAL payment page
 
-Rules:
-- The payment page MUST be on a DIFFERENT DOMAIN than ${originalHost}.
-- When you are on the payment page, set PAYMENT_URL to EXACTLY the address bar URL with this sequence:
-  1) Focus address bar (Windows/Linux: Ctrl+L; macOS: Cmd+L)
-  2) Copy (Windows/Linux: Ctrl+C; macOS: Cmd+C)
-  3) Paste that exact string into the output as PAYMENT_URL. Do NOT modify it.
-- Do not stop on merchant domain pages or intermediate review/processing steps.
-- DO NOT enter card number/CVV/expiry. Stop at the payment form.
+CRITICAL:
+- Payment page MUST be on DIFFERENT domain than ${originalHost}
+- Copy EXACT address bar URL (Ctrl+L, Ctrl+C) as PAYMENT_URL
+- DO NOT enter card details - stop at payment form
+- NO DELAYS - ACT IMMEDIATELY ON EACH PAGE
 
-Output ONLY these lines:
+Output:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes
-PAYMENT_URL: [paste EXACT window.location.href here]
-PAYMENT_GATEWAY: [provider name if visible]
+PAYMENT_URL: [exact address bar URL]
+PAYMENT_GATEWAY: [provider name]
 PAYMENT_PROVIDERS: [comma-separated]
-STEPS_COMPLETED: [very short]
+STEPS_COMPLETED: [brief summary]
 ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
+
+EXECUTE NOW: ${checkoutUrl}
         `.trim();
     }
 
@@ -303,21 +311,46 @@ SCREENSHOT_READY: Yes
      * Get session configuration options
      */
     _getSessionOptions(profile = { code: 'default', acceptLanguage: 'en-US,en;q=0.9' }) {
-        const isDK = profile && profile.code === 'dk';
+        // Set timezone and locale based on country profile
+        let timezone = 'Europe/London'; // Default European timezone
+        let locale = 'en-GB'; // Default European locale
+        
+        if (profile.code === 'dk') {
+            timezone = 'Europe/Copenhagen';
+            locale = 'da-DK';
+        } else if (profile.code === 'it') {
+            timezone = 'Europe/Rome';
+            locale = 'it-IT';
+        } else if (profile.code === 'fr') {
+            timezone = 'Europe/Paris';
+            locale = 'fr-FR';
+        } else if (profile.code === 'de') {
+            timezone = 'Europe/Berlin';
+            locale = 'de-DE';
+        } else if (profile.code === 'es') {
+            timezone = 'Europe/Madrid';
+            locale = 'es-ES';
+        } else if (profile.code === 'pl') {
+            timezone = 'Europe/Warsaw';
+            locale = 'pl-PL';
+        }
+        
         return {
-            accept_cookies: true,
+            acceptCookies: true,
             headless: true,
-            user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport_width: 1280,
-            viewport_height: 720,
-            accept_language: profile.acceptLanguage,
-            timezone: isDK ? 'Europe/Copenhagen' : undefined,
-            locale: isDK ? 'da-DK' : undefined
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewportWidth: 1280,
+            viewportHeight: 720,
+            acceptLanguage: profile.acceptLanguage,
+            timezone: timezone,
+            locale: locale,
+            blockAds: true,
+            blockTrackers: true
         };
     }
 
     /**
-     * Run the HyperAgent task with session timeout management
+     * Run the Browser Use task with session timeout management
      */
     async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null, context = {}) {
         let sessionId = null;
@@ -328,7 +361,7 @@ SCREENSHOT_READY: Yes
                 progressCallback("🌐 Creating browser session...");
             }
 
-            // Create a new session
+            // Create a new session with sessionOptions
             const session = await this.hb.sessions.create(sessionOptions);
             sessionId = session.id;
 
@@ -357,25 +390,24 @@ SCREENSHOT_READY: Yes
             });
 
             if (progressCallback) {
-                progressCallback("🤖 Starting HyperAgent payment gateway extraction...");
+                progressCallback("🤖 Starting Browser Use payment gateway extraction...");
                 progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes`);
             }
 
-            // Start the HyperAgent task with custom API keys for cost control
-            const hyperAgentPromise = this.hb.agents.hyperAgent.startAndWait({
+            // Start the Browser Use task with MAXIMUM SPEED configuration
+            const browserUsePromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                llm: "gpt-4o", // More capable model
+                llm: process.env.OPENAI_LLM || "gpt-4o", // Best available model for main reasoning
+                plannerLlm: process.env.OPENAI_LLM || "gpt-4o-mini", // Fast planner decisions
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o-mini", // Fast page extraction
                 useCustomApiKeys: true,
-                apiKeys: {
-                    openai: process.env.OPENAI_API_KEY
-                },
-                maxSteps: 15, // Sufficient steps to reach payment form but not enter card details
-                keepBrowserOpen: false
+                apiKeys: { openai: process.env.OPENAI_API_KEY },
+                keepBrowserOpen: false // Close browser after completion
             });
 
             // Race between the task and timeout
-            const result = await Promise.race([hyperAgentPromise, timeoutPromise]);
+            const result = await Promise.race([browserUsePromise, timeoutPromise]);
 
             // Clear timeout since we completed successfully
             if (timeoutId) {
@@ -383,7 +415,7 @@ SCREENSHOT_READY: Yes
             }
 
             if (progressCallback) {
-                progressCallback("✅ HyperAgent payment gateway extraction completed successfully!");
+                progressCallback("✅ Browser Use payment gateway extraction completed successfully!");
             }
 
             // Capture screenshot before stopping the session
@@ -460,7 +492,7 @@ SCREENSHOT_READY: Yes
     async extractPaymentURLWithStreaming(checkoutUrl, progressCallback = null) {
         try {
             if (progressCallback) {
-                progressCallback("🚀 Starting HyperAgent payment gateway URL extraction...");
+                progressCallback("🚀 Starting Browser Use payment gateway URL extraction...");
             }
 
             const profile = this._inferCountryProfile(checkoutUrl);
@@ -475,7 +507,7 @@ SCREENSHOT_READY: Yes
             );
 
             if (progressCallback) {
-                progressCallback("✅ HyperAgent payment gateway URL extraction completed!");
+                progressCallback("✅ Browser Use payment gateway URL extraction completed!");
             }
 
             return result;

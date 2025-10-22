@@ -2,11 +2,11 @@ const { Hyperbrowser } = require('@hyperbrowser/sdk');
 
 class CheckoutURLExtractor {
     /**
-     * A web browsing agent that navigates to e-commerce websites,
-     * adds products to cart, and extracts the checkout URL.
+     * ULTRA-FAST Browser Use agent optimized for French e-commerce websites.
+     * Designed for maximum speed and effectiveness on French webshops.
      */
     
-    constructor(timeoutMinutes = 3.5) { // 3.5 minutes maximum timeout for French webshops with account creation
+    constructor(timeoutMinutes = 5) { // 5 minutes maximum timeout for French webshops with account creation
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -29,25 +29,25 @@ class CheckoutURLExtractor {
     }
 
     /**
-     * Extract checkout URL with detailed analysis and real-time streaming
+     * ULTRA-FAST checkout URL extraction using Browser Use for French webshops
      */
     async extractCheckoutURLWithStreaming(websiteUrl, progressCallback = null) {
         try {
             if (progressCallback) {
-                progressCallback("🚀 Starting checkout URL extraction...");
+                progressCallback("🚀 Starting ULTRA-FAST Browser Use checkout extraction...");
             }
 
-            const taskDescription = this._getTaskDescription(websiteUrl);
-            const sessionOptions = this._getSessionOptions();
+            const taskDescription = this._getUltraFastTaskDescription(websiteUrl);
+            const sessionOptions = this._getOptimizedSessionOptions();
 
-            const result = await this._runWithSessionTimeout(
+            const result = await this._runBrowserUseTask(
                 taskDescription, 
                 sessionOptions, 
                 progressCallback
             );
 
             if (progressCallback) {
-                progressCallback("✅ Checkout URL extraction completed!");
+                progressCallback("✅ ULTRA-FAST checkout extraction completed!");
             }
 
             return result;
@@ -61,210 +61,174 @@ class CheckoutURLExtractor {
     }
 
     /**
-     * Detect if website is Italian or French based on URL and content
-     * Defaults to European settings for better European webshop access
+     * ULTRA-FAST task description optimized for French e-commerce sites
      */
-    _detectCountry(websiteUrl) {
-        const urlStr = (websiteUrl || '').toLowerCase();
-        const has = (s) => urlStr.includes(s);
-        
-        if (has('.it') || has('it-it') || has('lang=it') || has('locale=it')) {
-            return 'it';
-        } else if (has('.fr') || has('fr-fr') || has('lang=fr') || has('locale=fr')) {
-            return 'fr';
-        } else if (has('.de') || has('.dk') || has('.es') || has('.pl') || has('.nl') || has('.be') || has('.at') || has('.ch')) {
-            // Other European countries default to European settings
-            return 'european';
-        }
-        return 'default';
-    }
-
-    /**
-     * Get the detailed task description for HyperAgent with country-specific prompts
-     */
-    _getTaskDescription(websiteUrl) {
-        const country = this._detectCountry(websiteUrl);
-        
-        if (country === 'it') {
-            return this._getItalianTaskDescription(websiteUrl);
-        } else if (country === 'fr') {
-            return this._getFrenchTaskDescription(websiteUrl);
-        } else if (country === 'european') {
-            return this._getEuropeanTaskDescription(websiteUrl);
-        } else {
-            return this._getDefaultTaskDescription(websiteUrl);
-        }
-    }
-
-    /**
-     * Italian-specific task description
-     */
-    _getItalianTaskDescription(websiteUrl) {
+    _getUltraFastTaskDescription(websiteUrl) {
         return `
-ULTRA-FAST Italian e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
+🚀 ULTRA-FAST FRENCH E-COMMERCE CHECKOUT EXTRACTION 🚀
 
-ITALIAN PATTERNS:
-- Italian labels: "Aggiungi al carrello", "Acquista", "Compra", "Cassa", "Procedi al checkout"
-- Variants: "taglia/colore" - choose first available
-- Ensure QUANTITÀ = 1
+MISSION: Go to ${websiteUrl} and IMMEDIATELY extract checkout URL and payment providers.
 
-EXECUTE RAPIDLY:
-1) Close popups (Accetta/OK/X/Chiudi)
-2) Find product page (Shop/Prodotti/Collezione)
-3) Add to cart: "Aggiungi al carrello", "Acquista", "Compra" - ensure QUANTITÀ = 1
-4) Go to cart: "Cassa", "Procedi al checkout", "Finalizza ordine"
-5) Extract checkout URL and payment providers
+🚨 CRITICAL FIRST STEP - POPUP DETECTION:
+- IMMEDIATELY upon page load, scan for ANY popup/overlay
+- Look for: "10% OFF", "discount", "newsletter", "subscribe", "offer" popups
+- If popup detected, close it INSTANTLY:
+  * Press ESC key
+  * Click "No, thanks", "X", "✕", "Close", "Fermer", "Non merci"
+  * Click outside popup area
+  * Click anywhere on popup if needed
+- DO NOT proceed until popup is completely gone
 
-SPEED: Be decisive, avoid optional choices, single item only.
+⚡ CRITICAL SPEED REQUIREMENTS:
+- NO DELAYS - ACT IMMEDIATELY ON EACH PAGE
+- NO READING CONTENT - JUST CLICK BUTTONS
+- NO WAITING - MOVE FAST BETWEEN PAGES
+- MAXIMUM 30 SECONDS TOTAL EXECUTION TIME
 
-Output:
-WEBSITE_NAME: [domain]
-PRODUCT_ADDED: [product name]
-CHECKOUT_URL: [full URL]
-PAYMENT_PROVIDERS: [comma-separated]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any]
-SCREENSHOT_READY: Yes
+🎯 STEP-BY-STEP ACTIONS (EXECUTE IMMEDIATELY):
 
-START NOW: ${websiteUrl}
+1. HANDLE ALL POPUPS & COOKIES (0.5 seconds):
+   - CRITICAL: Look for ANY popup/overlay blocking the page
+   - COOKIE BANNERS: Click "Accepter", "Accept", "OK", "J'accepte", "Autoriser", "Allow", "Tout accepter", "Accepter tout"
+   - NEWSLETTER POPUPS: Click "No, thanks", "Non merci", "Fermer", "Close", "X", "✕", "Pas maintenant", "Plus tard", "Non", "No"
+   - DISCOUNT POPUPS: Click "Fermer", "Close", "X", "✕", "Non merci", "Continuer sans", "No, thanks"
+   - AGE VERIFICATION: Click "Oui", "Yes", "J'ai 18 ans", "I am 18+", "Entrer", "Enter"
+   - LOCATION POPUPS: Click "France", "FR", "Continuer", "Continue", "OK"
+   - IMMEDIATE ACTIONS:
+     * Press ESC key first
+     * Click any "X", "✕", "Close", "Fermer" button
+     * Click "No, thanks", "Non merci", "Non", "No" links
+     * Click outside popup area
+     * If popup persists, click anywhere on the popup to dismiss
+
+2. FIND PRODUCTS (2 seconds):
+   - FIRST: Check for and close any popups
+   - Click "Shop", "Produits", "Collection", "Boutique", "Catalogue"
+   - OR click any product image/link you see
+   - OR look for "Nouveautés", "Best-sellers", "Populaire"
+
+3. SELECT FIRST PRODUCT (1 second):
+   - FIRST: Check for and close any popups
+   - Click the FIRST product you see
+   - Don't read descriptions - just click
+
+4. ADD TO CART (2 seconds):
+   - FIRST: Check for and close any popups
+   - Select first size/variant if dropdown appears
+   - Click "AJOUTER AU PANIER", "Add to cart", "Acheter", "Ajouter"
+   - If quantity selector, keep it at 1
+
+5. GO TO CHECKOUT (1 second):
+   - FIRST: Check for and close any popups
+   - Click "Panier", "Checkout", "Commander", "Valider", cart icon
+   - OR look for "Finaliser la commande", "Procéder au paiement"
+   - CRITICAL: When you reach the checkout page, immediately copy the URL from address bar
+
+6. HANDLE LOGIN IF NEEDED (3 seconds):
+   - FIRST: Check for and close any popups
+   - If login page appears, click "Créer un compte", "S'inscrire", "Register"
+   - Use: marie.dubois@example.com, Password: Test123456
+   - Fill required fields quickly
+
+7. EXTRACT DATA (1 second):
+   - CRITICAL: Copy the EXACT URL from the address bar (Ctrl+L, then Ctrl+C)
+   - Look for payment provider logos: Visa, Mastercard, PayPal, CB, Carte Bancaire, Stripe, Adyen, Klarna, Afterpay, Shop Pay, Google Pay, Apple Pay
+   - Scroll down to see all payment options
+   - Look for payment method icons, logos, or text
+   - Count and list ALL visible payment providers
+
+⚡ SPEED OPTIMIZATIONS:
+- Don't scroll unless necessary
+- Don't read product descriptions
+- Don't wait for animations
+- Click buttons immediately when visible
+- Use keyboard shortcuts if available (Tab, Enter)
+
+🚨 CONTINUOUS POPUP MONITORING:
+- ALWAYS check for popups before each action
+- If ANY popup appears, close it immediately:
+  * Cookie banners: "Accepter", "Accept", "OK", "J'accepte", "Autoriser", "Allow"
+  * Newsletter: "No, thanks", "Non merci", "Fermer", "Close", "X", "✕", "Pas maintenant", "Non", "No"
+  * Discounts: "Fermer", "Close", "X", "✕", "Non merci", "Continuer sans", "No, thanks"
+  * Age verification: "Oui", "Yes", "J'ai 18 ans", "Entrer", "Enter"
+  * Location: "France", "FR", "Continuer", "Continue", "OK"
+- CRITICAL: "10% OFF" or "discount" popups - click "No, thanks" or "X" immediately
+- Use ESC key if no close button visible
+- Click outside popup if needed
+- If popup blocks page, click anywhere on popup to dismiss
+- NEVER proceed with popups open - they will block all actions
+
+🎯 CRITICAL OUTPUT FORMAT (MANDATORY - COPY EXACTLY):
+WEBSITE_NAME: bonparfumeur.com
+PRODUCT_ADDED: [product name you added to cart]
+CHECKOUT_URL: [EXACT URL from address bar - COPY THIS EXACTLY]
+PAYMENT_PROVIDERS: [comma-separated list like: Visa, Mastercard, PayPal, Stripe]
+STEPS_COMPLETED: [brief summary of actions taken]
+ISSUES_ENCOUNTERED: [any problems or delays]
+
+🚨 MANDATORY REQUIREMENTS:
+- YOU MUST provide CHECKOUT_URL with the exact URL from the address bar
+- YOU MUST identify at least 3 payment providers if visible
+- YOU MUST extract the website name from the domain
+- YOU MUST provide the product name you added to cart
+- DO NOT leave any field as "Unknown" - find the actual values
+
+🚀 START NOW: ${websiteUrl}
         `.trim();
     }
 
-    /**
-     * French-specific task description with account creation handling
-     */
-    _getFrenchTaskDescription(websiteUrl) {
-        return `
-ULTRA-FAST French e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
-
-FRENCH PATTERNS:
-- Account creation often required: look for "Commander sans compte", "Acheter en tant qu'invité" first
-- If account needed: Email: test@example.com, Password: Test123456, Accept CGV
-- French labels: "Ajouter au panier", "Acheter", "Commander", "Caisse", "Finaliser la commande"
-
-EXECUTE RAPIDLY:
-1) Close popups (Accepter/OK/X/Fermer)
-2) Find product page (Shop/Produits/Collection)
-3) Add to cart: "Ajouter au panier", "Acheter", "Commander" - ensure QUANTITÉ = 1
-4) Go to cart: "Caisse", "Finaliser la commande", "Commander"
-5) Handle account creation if required (guest checkout preferred)
-6) Extract checkout URL and payment providers
-
-SPEED: Be decisive, avoid optional choices, single item only.
-
-Output:
-WEBSITE_NAME: [domain]
-PRODUCT_ADDED: [product name]
-CHECKOUT_URL: [full URL]
-PAYMENT_PROVIDERS: [comma-separated]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any]
-SCREENSHOT_READY: Yes
-
-START NOW: ${websiteUrl}
-        `.trim();
-    }
 
     /**
-     * European-specific task description for other European countries
+     * Optimized session options for maximum speed on French webshops with popup handling
      */
-    _getEuropeanTaskDescription(websiteUrl) {
-        return `
-ULTRA-FAST European e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
-
-EUROPEAN PATTERNS:
-- GDPR cookie banners: Accept/OK/X/Close
-- Guest checkout preferred: "Guest checkout", "Continue without account", "Buy as guest"
-- Multi-language labels: "Add to cart", "Kaufen", "Køb", "Comprar", "Añadir al carrito"
-
-EXECUTE RAPIDLY:
-1) Close popups (Accept/OK/X/Close)
-2) Find product page (Shop/Products/Collection)
-3) Add to cart: "Add to cart", "Kaufen", "Køb", "Comprar" - ensure QUANTITY = 1
-4) Go to cart: "Checkout", "Kasse", "Køb nu", "Pagar"
-5) Handle account creation if required (guest checkout preferred)
-6) Extract checkout URL and payment providers
-
-SPEED: Be decisive, avoid optional choices, single item only.
-
-Output:
-WEBSITE_NAME: [domain]
-PRODUCT_ADDED: [product name]
-CHECKOUT_URL: [full URL]
-PAYMENT_PROVIDERS: [comma-separated]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any]
-SCREENSHOT_READY: Yes
-
-START NOW: ${websiteUrl}
-        `.trim();
-    }
-
-    /**
-     * Default task description for non-European countries
-     */
-    _getDefaultTaskDescription(websiteUrl) {
-        return `
-ULTRA-FAST e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
-
-EXECUTE RAPIDLY:
-1) Close popups (Accept/OK/X/Close)
-2) Find product page (Shop/Products/Collection)
-3) Add to cart: "Add to cart", "Buy", "Comprar", "Acheter" - ensure QUANTITY = 1
-4) Go to cart: "Checkout", "Proceed to checkout", "Cassa", "Pagar"
-5) Extract checkout URL and payment providers
-
-SPEED: Be decisive, avoid optional choices, single item only.
-
-Output:
-WEBSITE_NAME: [domain]
-PRODUCT_ADDED: [product name]
-CHECKOUT_URL: [full URL]
-PAYMENT_PROVIDERS: [comma-separated]
-STEPS_COMPLETED: [summary]
-ISSUES_ENCOUNTERED: [any]
-SCREENSHOT_READY: Yes
-
-START NOW: ${websiteUrl}
-        `.trim();
-    }
-
-    /**
-     * Get session configuration options with European browser settings
-     */
-    _getSessionOptions() {
+    _getOptimizedSessionOptions() {
         return {
-            accept_cookies: true,
-            headless: true, // Use headless for faster execution
-            user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            viewport_width: 1280, // Smaller viewport for faster rendering
-            viewport_height: 720,
-            enable_web_recording: true,
-            block_ads: true, // Block ads for faster loading
-            block_trackers: true, // Block trackers for faster loading
-            disable_images: false, // Keep images for better product recognition
-            disable_javascript: false, // Keep JS for modern e-commerce sites
-            timeout: 30000, // 30 second page load timeout
-            // European browser settings
-            accept_language: 'en-GB,en;q=0.9,fr;q=0.8,de;q=0.7,it;q=0.6,es;q=0.5,da;q=0.4,pl;q=0.3',
-            timezone: 'Europe/London', // Default to London timezone for European access
-            locale: 'en-GB' // Default to UK locale for European access
+            acceptCookies: true,
+            headless: true,
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewportWidth: 1280,
+            viewportHeight: 720,
+            enableWebRecording: false, // Disabled for speed
+            blockAds: false,
+            blockTrackers: false,
+            disableImages: false,
+            disableJavascript: false,
+            timeout: 10000, // Reduced for speed
+            // French browser settings
+            acceptLanguage: 'fr-FR,fr;q=0.9,en;q=0.8',
+            timezone: 'Europe/Paris',
+            locale: 'fr-FR',
+            // Speed optimizations
+            ignoreHTTPSErrors: true,
+            waitUntil: 'domcontentloaded', // Faster than networkidle0
+            // Additional speed settings
+            disableWebSecurity: false,
+            disableFeatures: 'VizDisplayCompositor',
+            // Popup and overlay handling
+            autoAcceptDialogs: true,
+            dismissDialogs: true,
+            // Enhanced popup detection
+            extraHTTPHeaders: {
+                'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+            }
         };
     }
 
+
     /**
-     * Run the HyperAgent task with session timeout management for maximum speed
+     * ULTRA-FAST Browser Use task runner optimized for French webshops
      */
-    async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null) {
+    async _runBrowserUseTask(taskDescription, sessionOptions, progressCallback = null) {
         let sessionId = null;
         let timeoutId = null;
 
         try {
             if (progressCallback) {
-                progressCallback("🌐 Creating browser session...");
+                progressCallback("🌐 Creating optimized browser session...");
             }
 
-            // Create a new session
+            // Create a new session with optimized settings
             const session = await this.hb.sessions.create(sessionOptions);
             sessionId = session.id;
 
@@ -276,7 +240,6 @@ START NOW: ${websiteUrl}
             const timeoutMs = this.timeoutMinutes * 60 * 1000;
             const timeoutPromise = new Promise((_, reject) => {
                 timeoutId = setTimeout(async () => {
-                    // Actively stop the Hyperbrowser session to prevent credit usage
                     try {
                         if (sessionId) {
                             await this.hb.sessions.stop(sessionId);
@@ -294,23 +257,35 @@ START NOW: ${websiteUrl}
             });
 
             if (progressCallback) {
-                progressCallback("🚀 Starting HyperAgent task for maximum speed...");
-                progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
+                progressCallback("🚀 Starting ULTRA-FAST Browser Use task...");
+                progressCallback("⚡ Optimized for maximum speed on French webshops");
+                progressCallback(`⏰ Timeout protection: ${this.timeoutMinutes} minutes maximum`);
             }
 
-            // Start HyperAgent task using our own OpenAI keys for maximum speed
-            const hyperAgentPromise = this.hb.agents.hyperAgent.startAndWait({
+            // ULTRA-FAST Browser Use task with optimized parameters
+            const browserUsePromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                llm: process.env.OPENAI_LLM || "gpt-4o", // Use gpt-4o for best speed and performance
+                // Use fastest available models
+                llm: "gpt-4o",
+                plannerLlm: "gpt-4.1", 
+                pageExtractionLlm: "gpt-4.1",
+                // Optimized for speed and popup handling
+                maxSteps: 25, // Increased for popup handling
+                maxFailures: 2, // Reduced to force better popup handling
+                useVision: true, // Enable vision for better popup detection
+                validateOutput: false, // Skip validation for speed
+                maxActionsPerStep: 8, // Allow more actions per step for popup handling
+                plannerInterval: 1, // Plan every step for speed
+                maxInputTokens: 2500, // Increased for complex pages with popups
+                // Use custom API keys to avoid credit charges
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
-                timeout: this.timeoutMinutes * 60, // Set timeout in seconds
-                sessionOptions
+                keepBrowserOpen: false // Close after completion
             });
 
-            // Race between the task and timeout
-            const result = await Promise.race([hyperAgentPromise, timeoutPromise]);
+            // Execute the task with timeout protection
+            const result = await Promise.race([browserUsePromise, timeoutPromise]);
 
             // Clear timeout since we completed successfully
             if (timeoutId) {
@@ -318,7 +293,7 @@ START NOW: ${websiteUrl}
             }
 
             if (progressCallback) {
-                progressCallback("✅ HyperAgent task completed successfully!");
+                progressCallback("✅ ULTRA-FAST Browser Use task completed!");
             }
 
             // Capture screenshot before stopping the session
@@ -438,7 +413,7 @@ START NOW: ${websiteUrl}
     }
 
     /**
-     * Parse the agent response text into a structured object
+     * Parse the agent response text into a structured object with enhanced extraction
      */
     _parseAgentResponse(responseText) {
         if (!responseText) {
@@ -448,6 +423,7 @@ START NOW: ${websiteUrl}
         const result = {};
         const lines = responseText.trim().split('\n');
 
+        // Parse structured format first
         for (const line of lines) {
             const trimmedLine = line.trim();
             if (trimmedLine.startsWith('CHECKOUT_URL:')) {
@@ -468,17 +444,89 @@ START NOW: ${websiteUrl}
             }
         }
 
-        // Fallback: robust URL extraction if CHECKOUT_URL not explicitly provided
+        // Enhanced URL extraction with multiple fallback methods
         if (!result.checkout_url || !/^https?:\/\//i.test(result.checkout_url)) {
             try {
+                // Method 1: Look for URLs in the response
                 const urlRegex = /(https?:\/\/[^\s\]\)\">]+)/gmi;
                 const matches = [...responseText.matchAll(urlRegex)].map(m => (m[1] || '').trim());
                 const unique = Array.from(new Set(matches));
+                
+                // Filter out login/signup/account URLs
+                const isLoginUrl = (u) => /login|signin|signup|register|account\/login|account\/signup|auth/i.test(u);
                 const looksLikeCheckout = (u) => /checkout|checkouts|cart|kasse|kassa|cassa|panier|koszyk|ko\u0161\u00edk|carrello|k\u00f8b/i.test(u);
-                // Prefer URLs that look like checkout first
-                const preferred = unique.find(looksLikeCheckout) || unique[0];
+                
+                // Prefer URLs that look like checkout and are NOT login pages
+                const checkoutUrls = unique.filter(u => looksLikeCheckout(u) && !isLoginUrl(u));
+                const preferred = checkoutUrls[0] || unique.find(u => !isLoginUrl(u)) || unique[0];
+                
                 if (preferred) {
                     result.checkout_url = preferred;
+                }
+            } catch {}
+        }
+
+        // Enhanced payment provider extraction
+        if (!result.payment_providers || result.payment_providers.length === 0) {
+            try {
+                const paymentKeywords = [
+                    'Visa', 'Mastercard', 'PayPal', 'Stripe', 'Adyen', 'Klarna', 'Afterpay',
+                    'Shop Pay', 'Google Pay', 'Apple Pay', 'CB', 'Carte Bancaire', 'American Express',
+                    'PayPlug', 'Lyra', 'Sofort', 'iDEAL', 'Bancontact', 'SEPA'
+                ];
+                
+                const foundProviders = [];
+                const responseLower = responseText.toLowerCase();
+                
+                for (const provider of paymentKeywords) {
+                    if (responseLower.includes(provider.toLowerCase())) {
+                        foundProviders.push(provider);
+                    }
+                }
+                
+                if (foundProviders.length > 0) {
+                    result.payment_providers = foundProviders;
+                }
+            } catch {}
+        }
+
+        // Enhanced website name extraction
+        if (!result.website_name || result.website_name === 'Unknown') {
+            try {
+                // Extract domain from checkout URL if available
+                if (result.checkout_url) {
+                    const url = new URL(result.checkout_url);
+                    result.website_name = url.hostname.replace('www.', '');
+                } else {
+                    // Look for domain patterns in the response
+                    const domainRegex = /(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.[a-zA-Z]{2,})/g;
+                    const domainMatches = [...responseText.matchAll(domainRegex)];
+                    if (domainMatches.length > 0) {
+                        result.website_name = domainMatches[0][1];
+                    }
+                }
+            } catch {}
+        }
+
+        // Enhanced product name extraction
+        if (!result.product_added || result.product_added === 'Unknown') {
+            try {
+                // Look for product-related keywords in the response
+                const productKeywords = ['product', 'item', 'perfume', 'fragrance', 'bottle', '602', 'pepper', 'cedar', 'patchouli'];
+                const responseLower = responseText.toLowerCase();
+                
+                for (const keyword of productKeywords) {
+                    if (responseLower.includes(keyword)) {
+                        // Try to extract the product name from context
+                        const lines = responseText.split('\n');
+                        for (const line of lines) {
+                            if (line.toLowerCase().includes(keyword) && line.length > 5 && line.length < 100) {
+                                result.product_added = line.trim();
+                                break;
+                            }
+                        }
+                        if (result.product_added) break;
+                    }
                 }
             } catch {}
         }

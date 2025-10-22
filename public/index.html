@@ -162,20 +162,29 @@
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        // Initialize Socket.IO
-        // Initialize Socket.io if available (local development only)
-        let socket = null;
-        try {
-            if (typeof io !== 'undefined') {
-                socket = io();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Socket.IO
+            // Initialize Socket.io if available (local development only)
+            let socket = null;
+            try {
+                if (typeof io !== 'undefined') {
+                    socket = io();
+                }
+            } catch (error) {
+                console.log('Socket.io not available (production mode)');
             }
-        } catch (error) {
-            console.log('Socket.io not available (production mode)');
-        }
-        let currentSessionId = null;
+            let currentSessionId = null;
 
         // DOM elements
+        console.log('Looking for DOM elements...');
         const form = document.getElementById('analysisForm');
+        console.log('Form element:', form);
+        
+        if (!form) {
+            console.error('Form element not found!');
+            return;
+        }
+        
         const analyzeBtn = document.getElementById('analyzeBtn');
         const btnText = document.getElementById('btnText');
         const btnSpinner = document.getElementById('btnSpinner');
@@ -185,6 +194,8 @@
         const resultCard = document.getElementById('resultCard');
         const errorSection = document.getElementById('errorSection');
         const errorMessage = document.getElementById('errorMessage');
+        
+        console.log('All DOM elements found successfully');
 
         // Socket.IO event listeners
         if (socket) {
@@ -249,13 +260,19 @@
         }
 
         // Form submission
+        console.log('Adding form event listener...');
         form.addEventListener('submit', async (e) => {
+            console.log('Form submitted!');
             e.preventDefault();
             
             const urlInput = document.getElementById('websiteUrl');
             const detailedInput = document.getElementById('detailedAnalysis');
             
+            console.log('URL input:', urlInput);
+            console.log('Detailed input:', detailedInput);
+            
             if (!urlInput) {
+                console.error('URL input not found!');
                 showError('Website URL input not found');
                 return;
             }
@@ -498,6 +515,10 @@
             modal.style.display = 'none';
         }
 
+        // Make functions globally available
+        window.openScreenshotModal = openScreenshotModal;
+        window.closeScreenshotModal = closeScreenshotModal;
+
         // Close modal when clicking outside the image
         window.onclick = function(event) {
             const modal = document.getElementById('screenshotModal');
@@ -505,6 +526,7 @@
                 modal.style.display = 'none';
             }
         }
+        }); // End of DOMContentLoaded
     </script>
 </body>
 </html>
