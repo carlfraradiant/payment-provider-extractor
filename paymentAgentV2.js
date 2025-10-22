@@ -7,7 +7,7 @@ class PaymentURLExtractorV2 {
      * fill out forms with locale-specific data, and extract the payment gateway URL.
      */
 
-    constructor(timeoutMinutes = 2.5) {
+    constructor(timeoutMinutes = 3.5) { // 3.5 minutes for French webshops with account creation
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -26,32 +26,71 @@ class PaymentURLExtractorV2 {
         }
         
         this.timeoutMinutes = timeoutMinutes;
+        console.log(`🔧 PaymentURLExtractorV2 initialized with timeout: ${this.timeoutMinutes} minutes`);
     }
 
     /**
      * Infer country/profile from checkout URL or query params
      * Returns a minimal, locale-correct dataset for faster, more reliable fills
+     * Enhanced detection for Italian and French webshops
      */
     _inferCountryProfile(checkoutUrl) {
         const urlStr = (checkoutUrl || '').toLowerCase();
         const has = (s) => urlStr.includes(s);
         
-        // Default profile (EN)
+        // Default profile (European)
         let profile = {
             code: 'default',
-            acceptLanguage: 'en-US,en;q=0.9',
-            firstName: 'John',
+            acceptLanguage: 'en-GB,en;q=0.9,fr;q=0.8,de;q=0.7,it;q=0.6,es;q=0.5,da;q=0.4,pl;q=0.3',
+            firstName: 'James',
             lastName: 'Smith',
-            address: '123 Main St',
-            postalCode: '12345',
-            city: 'New York',
-            phone: '+1 555 123 4567',
+            address: '15 High Street',
+            postalCode: 'SW1A 1AA',
+            city: 'London',
+            phone: '+44 20 7946 0958',
             cardLabel: 'Credit Card',
             payLabel: 'Pay Now'
         };
 
+        // Italy - Enhanced detection
+        if (has('.it') || has('it-it') || has('it_it') || has('lang=it') || has('locale=it') || 
+            has('italia') || has('italiano') || has('italian') || has('milano') || has('roma') || 
+            has('napoli') || has('torino') || has('firenze') || has('bologna') || has('venezia')) {
+            profile = {
+                code: 'it',
+                acceptLanguage: 'it-IT,it;q=0.9,en;q=0.8',
+                firstName: 'Giuseppe',
+                lastName: 'Rossi',
+                address: 'Via Roma 45',
+                postalCode: '20100',
+                city: 'Milano',
+                phone: '+39 02 12345678',
+                cardLabel: 'Carta di credito',
+                payLabel: 'Paga ora'
+            };
+        }
+
+        // France - Enhanced detection with comprehensive French data
+        else if (has('.fr') || has('fr-fr') || has('fr_fr') || has('lang=fr') || has('locale=fr') || 
+                 has('france') || has('français') || has('francais') || has('french') || has('paris') || 
+                 has('lyon') || has('marseille') || has('toulouse') || has('nice') || has('nantes') ||
+                 has('bordeaux') || has('lille') || has('strasbourg') || has('rennes') || has('montpellier')) {
+            profile = {
+                code: 'fr',
+                acceptLanguage: 'fr-FR,fr;q=0.9,en;q=0.8',
+                firstName: 'Marie',
+                lastName: 'Dubois',
+                address: '15 Rue de Rivoli',
+                postalCode: '75001',
+                city: 'Paris',
+                phone: '01 23 45 67 89',
+                cardLabel: 'Carte bancaire',
+                payLabel: 'Payer maintenant'
+            };
+        }
+
         // Denmark
-        if (has('.dk') || has('da-dk') || has('/da') || has('lang=da') || has('locale=da')) {
+        else if (has('.dk') || has('da-dk') || has('/da') || has('lang=da') || has('locale=da')) {
             profile = {
                 code: 'dk',
                 acceptLanguage: 'da-DK,da;q=0.9,en;q=0.8',
@@ -79,22 +118,6 @@ class PaymentURLExtractorV2 {
                 phone: '+49 30 12345678',
                 cardLabel: 'Kreditkarte',
                 payLabel: 'Jetzt bezahlen'
-            };
-        }
-
-        // Italy
-        else if (has('.it') || has('it-it') || has('lang=it') || has('locale=it')) {
-            profile = {
-                code: 'it',
-                acceptLanguage: 'it-IT,it;q=0.9,en;q=0.8',
-                firstName: 'Giuseppe',
-                lastName: 'Rossi',
-                address: 'Via Roma 45',
-                postalCode: '20100',
-                city: 'Milano',
-                phone: '+39 02 12345678',
-                cardLabel: 'Carta di credito',
-                payLabel: 'Paga ora'
             };
         }
 
@@ -127,22 +150,6 @@ class PaymentURLExtractorV2 {
                 phone: '+48 22 12345678',
                 cardLabel: 'Karta',
                 payLabel: 'Zapłać teraz'
-            };
-        }
-
-        // France
-        else if (has('.fr') || has('fr-fr') || has('lang=fr') || has('locale=fr')) {
-            profile = {
-                code: 'fr',
-                acceptLanguage: 'fr-FR,fr;q=0.9,en;q=0.8',
-                firstName: 'Marie',
-                lastName: 'Dubois',
-                address: 'Rue de Rivoli 123',
-                postalCode: '75001',
-                city: 'Paris',
-                phone: '+33 1 23 45 67 89',
-                cardLabel: 'Carte bancaire',
-                payLabel: 'Payer maintenant'
             };
         }
 
@@ -259,9 +266,156 @@ class PaymentURLExtractorV2 {
     }
 
     /**
-     * Get the natural language task description for HyperAgent
+     * Get the natural language task description for HyperAgent with country-specific prompts
      */
     _getTaskDescription(checkoutUrl, profile) {
+        if (profile.code === 'it') {
+            return this._getItalianPaymentTaskDescription(checkoutUrl, profile);
+        } else if (profile.code === 'fr') {
+            return this._getFrenchPaymentTaskDescription(checkoutUrl, profile);
+        } else {
+            return this._getDefaultPaymentTaskDescription(checkoutUrl, profile);
+        }
+    }
+
+    /**
+     * Italian-specific payment task description
+     */
+    _getItalianPaymentTaskDescription(checkoutUrl, profile) {
+        const originalHost = (() => { try { return new URL(checkoutUrl).host; } catch { return ''; } })();
+        return `
+Go to ${checkoutUrl}. Your ONLY goal: reach the FINAL payment page (the one that shows card inputs) and return its exact URL.
+
+Fill checkout quickly with:
+- Email: test@example.com
+- Nome: ${profile.firstName}
+- Cognome: ${profile.lastName}
+- Indirizzo: ${profile.address}
+- CAP: ${profile.postalCode}
+- Città: ${profile.city}
+- Telefono: ${profile.phone}
+- Paese: ${profile.code.toUpperCase()}
+
+Then choose card payment and CONTINUE until redirected to the external payment provider.
+
+SPECIAL RULES FOR ITALIAN WEBSHOPS:
+- Many Italian checkouts embed card fields directly on the same checkout page (no redirect).
+- On a .it site or when locale indicates Italy, as soon as you see card inputs on the main checkout (labels like "Numero di carta", "Mese/Anno", "Codice di sicurezza", or Visa/Mastercard logos in the payment box), TREAT THIS PAGE AS THE PAYMENT PAGE.
+- Immediately extract visible payment providers (text like "Pagamenti sicuri con [Provider]", logos, or mentions like PayPal, Stripe, Nexi, Axerve, Gestpay, Satispay, Klarna, etc.).
+- Set PAYMENT_URL exactly to the current page URL (window.location.href) and DO NOT attempt to proceed off-site.
+- Continue to follow the no-card-entry rule: never type card numbers or CVV. Stop at identification of providers and URL.
+
+If redirected to external domain instead:
+- The payment page MUST be on a DIFFERENT DOMAIN than ${originalHost}.
+- When you are on the payment page, set PAYMENT_URL to EXACTLY the address bar URL with this sequence:
+  1) Focus address bar (Windows/Linux: Ctrl+L; macOS: Cmd+L)
+  2) Copy (Windows/Linux: Ctrl+C; macOS: Cmd+C)
+  3) Paste that exact string into the output as PAYMENT_URL. Do NOT modify it.
+- Do not stop on merchant domain pages or intermediate review/processing steps.
+- DO NOT enter card number/CVV/expiry. Stop at the payment form.
+
+Output ONLY these lines:
+CHECKOUT_URL: ${checkoutUrl}
+FORM_FILLED: Yes
+PAYMENT_URL: [paste EXACT window.location.href here]
+PAYMENT_GATEWAY: [provider name if visible]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [very short]
+ISSUES_ENCOUNTERED: [any]
+SCREENSHOT_READY: Yes
+        `.trim();
+    }
+
+    /**
+     * French-specific payment task description with comprehensive French checkout flow
+     */
+    _getFrenchPaymentTaskDescription(checkoutUrl, profile) {
+        const originalHost = (() => { try { return new URL(checkoutUrl).host; } catch { return ''; } })();
+        return `
+Go to ${checkoutUrl}. Your ONLY goal: reach the FINAL payment page (the one that shows card inputs) and return its exact URL.
+
+CRITICAL FRENCH CHECKOUT FLOW PATTERNS:
+- French sites often require account creation before checkout
+- Look for "Commander sans compte", "Acheter en tant qu'invité", "Poursuivre sans compte" for guest checkout
+- If account creation is mandatory, create one quickly with test data
+- French checkout has multiple steps: delivery, billing, payment
+- Legal requirements: CGV acceptance, newsletter opt-in, data protection
+
+Fill checkout quickly with FRENCH-SPECIFIC DATA:
+- Email: test@example.com
+- Prénom: ${profile.firstName}
+- Nom: ${profile.lastName}
+- Adresse: ${profile.address}
+- Code postal: ${profile.postalCode}
+- Ville: ${profile.city}
+- Téléphone: ${profile.phone}
+- Pays: ${profile.code.toUpperCase()}
+
+HANDLE FRENCH CHECKOUT STEPS:
+1) If account creation required:
+   - Look for "Commander sans compte", "Acheter en tant qu'invité" first
+   - If not available, create account with:
+     * Email: test@example.com
+     * Password: Test123456
+     * Confirm password: Test123456
+     * Accept CGV/terms if required
+   - Look for "Créer un compte", "S'inscrire", "Inscription" buttons
+
+2) Fill delivery information:
+   - Prénom: ${profile.firstName}
+   - Nom: ${profile.lastName}
+   - Adresse: ${profile.address}
+   - Code postal: ${profile.postalCode}
+   - Ville: ${profile.city}
+   - Téléphone: ${profile.phone}
+   - Pays: France
+
+3) Choose delivery method (select first available option)
+
+4) Choose payment method and CONTINUE until redirected to the external payment provider
+
+SPECIAL RULES FOR FRENCH WEBSHOPS:
+- Many French checkouts embed card fields directly on the same checkout page (no redirect).
+- On a .fr site or when locale indicates France, as soon as you see card inputs on the main checkout (labels like "Numéro de carte", "Mois/Année", "Code de sécurité", or Visa/Mastercard logos in the payment box), TREAT THIS PAGE AS THE PAYMENT PAGE.
+- Immediately extract visible payment providers (text like "Paiements sécurisés avec [Provider]", logos, or mentions like PayPal, Stripe, Lyra, PayPlug, CB, Carte Bancaire, etc.).
+- Set PAYMENT_URL exactly to the current page URL (window.location.href) and DO NOT attempt to proceed off-site.
+- Continue to follow the no-card-entry rule: never type card numbers or CVV. Stop at identification of providers and URL.
+
+If redirected to external domain instead:
+- The payment page MUST be on a DIFFERENT DOMAIN than ${originalHost}.
+- When you are on the payment page, set PAYMENT_URL to EXACTLY the address bar URL with this sequence:
+  1) Focus address bar (Windows/Linux: Ctrl+L; macOS: Cmd+L)
+  2) Copy (Windows/Linux: Ctrl+C; macOS: Cmd+C)
+  3) Paste that exact string into the output as PAYMENT_URL. Do NOT modify it.
+- Do not stop on merchant domain pages or intermediate review/processing steps.
+- DO NOT enter card number/CVV/expiry. Stop at the payment form.
+
+FRENCH-SPECIFIC PAYMENT PROVIDERS TO LOOK FOR:
+- CB (Carte Bancaire)
+- Visa, Mastercard
+- PayPal
+- Lyra, PayPlug
+- Stripe
+- American Express
+- Klarna
+- Afterpay
+
+Output ONLY these lines:
+CHECKOUT_URL: ${checkoutUrl}
+FORM_FILLED: Yes
+PAYMENT_URL: [paste EXACT window.location.href here]
+PAYMENT_GATEWAY: [provider name if visible]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [very short]
+ISSUES_ENCOUNTERED: [any]
+SCREENSHOT_READY: Yes
+        `.trim();
+    }
+
+    /**
+     * Default payment task description for other countries
+     */
+    _getDefaultPaymentTaskDescription(checkoutUrl, profile) {
         const originalHost = (() => { try { return new URL(checkoutUrl).host; } catch { return ''; } })();
         return `
 Go to ${checkoutUrl}. Your ONLY goal: reach the FINAL external payment page (the one that shows card inputs) and return its exact URL.
@@ -287,13 +441,6 @@ Rules:
 - Do not stop on merchant domain pages or intermediate review/processing steps.
 - DO NOT enter card number/CVV/expiry. Stop at the payment form.
 
-${profile.code === 'it' ? `SPECIAL RULE FOR ITALIAN WEBSHOPS:
-- Many Italian checkouts embed the card fields directly on the same checkout page (no redirect).
-- On an .it site or when the locale indicates Italy, as soon as you see card inputs on the main checkout (labels like "Numero di carta", "Mese/Anno", "Codice di sicurezza", or logos Visa/Mastercard in the payment box), TREAT THIS PAGE AS THE PAYMENT PAGE.
-- Immediately extract visible payment providers (text like "Pagamenti sicuri con [Provider]", logos, or mentions like PayPal, Stripe, Nexi, Axerve, Gestpay, etc.).
-- Set PAYMENT_URL to EXACTLY the current page URL (window.location.href) and DO NOT attempt to proceed off-site.
-- Continue to follow the no-card-entry rule: never type card numbers or CVV. Stop at identification of providers and URL.` : ''}
-
 Output ONLY these lines:
 CHECKOUT_URL: ${checkoutUrl}
 FORM_FILLED: Yes
@@ -307,19 +454,43 @@ SCREENSHOT_READY: Yes
     }
 
     /**
-     * Get session configuration options
+     * Get session configuration options with enhanced European locale support
      */
-    _getSessionOptions(profile = { code: 'default', acceptLanguage: 'en-US,en;q=0.9' }) {
+    _getSessionOptions(profile = { code: 'default', acceptLanguage: 'en-GB,en;q=0.9' }) {
         const isDK = profile && profile.code === 'dk';
+        const isIT = profile && profile.code === 'it';
+        const isFR = profile && profile.code === 'fr';
+        
+        // Set timezone and locale based on country, defaulting to European settings
+        let timezone, locale, acceptLanguage;
+        if (isDK) {
+            timezone = 'Europe/Copenhagen';
+            locale = 'da-DK';
+            acceptLanguage = 'da-DK,da;q=0.9,en-GB;q=0.8,en;q=0.7';
+        } else if (isIT) {
+            timezone = 'Europe/Rome';
+            locale = 'it-IT';
+            acceptLanguage = 'it-IT,it;q=0.9,en-GB;q=0.8,en;q=0.7';
+        } else if (isFR) {
+            timezone = 'Europe/Paris';
+            locale = 'fr-FR';
+            acceptLanguage = 'fr-FR,fr;q=0.9,en-GB;q=0.8,en;q=0.7';
+        } else {
+            // Default European settings for other countries
+            timezone = 'Europe/London';
+            locale = 'en-GB';
+            acceptLanguage = 'en-GB,en;q=0.9,fr;q=0.8,de;q=0.7,it;q=0.6,es;q=0.5,da;q=0.4,pl;q=0.3';
+        }
+        
         return {
             accept_cookies: true,
             headless: true,
             user_agent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             viewport_width: 1280,
             viewport_height: 720,
-            accept_language: profile.acceptLanguage,
-            timezone: isDK ? 'Europe/Copenhagen' : undefined,
-            locale: isDK ? 'da-DK' : undefined
+            accept_language: acceptLanguage,
+            timezone: timezone,
+            locale: locale
         };
     }
 
@@ -372,9 +543,9 @@ SCREENSHOT_READY: Yes
             const browserUsePromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                llm: process.env.OPENAI_LLM || "gpt-4o",
-                plannerLlm: process.env.OPENAI_LLM || "gpt-4o",
-                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o-mini",
+                llm: process.env.OPENAI_LLM || "gpt-5",
+                plannerLlm: process.env.OPENAI_LLM || "gpt-5",
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-5",
                 maxSteps: 22,
                 maxFailures: 3,
                 useVision: true,
@@ -385,6 +556,7 @@ SCREENSHOT_READY: Yes
                 keepBrowserOpen: false,
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
+                timeout: this.timeoutMinutes * 60, // Set timeout in seconds
                 sessionOptions
             });
 

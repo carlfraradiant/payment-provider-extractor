@@ -8,7 +8,7 @@ AI-powered e-commerce analysis tool that automatically navigates through checkou
 - **Payment Provider Detection**: Identifies all available payment methods
 - **Real-time Progress Tracking**: Live updates via WebSocket connections
 - **Screenshot Capture**: Live session URLs for visual verification
-- **Timeout Protection**: 2-minute limit to prevent excessive credit usage
+- **Timeout Protection**: 3.5-minute limit for French webshops with account creation
 - **Modern Web Interface**: Beautiful, responsive UI with real-time updates
 
 ## 🛠️ Technology Stack
@@ -85,7 +85,7 @@ The tool captures live session URLs that allow you to:
 
 ## ⏱️ Timeout Protection
 
-- **2-minute limit**: Prevents excessive credit usage
+- **3.5-minute limit**: Enhanced for French webshops with account creation
 - **Automatic session cleanup**: Stops Hyperbrowser sessions on timeout
 - **Credit protection**: Ensures you don't exceed your API limits
 

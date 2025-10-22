@@ -7,7 +7,7 @@ class PaymentURLExtractor {
      * fills out forms with random data, and extracts the payment gateway URL.
      */
 
-    constructor(timeoutMinutes = 2.5) { // 2.5 minutes maximum timeout for safety, but targeting 10-20 seconds
+    constructor(timeoutMinutes = 3.5) { // 3.5 minutes maximum timeout for French webshops with account creation
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
@@ -361,7 +361,8 @@ SCREENSHOT_READY: Yes
                 keepBrowserOpen: false, // Close browser after completion
                 maxActionsPerStep: 4, // Focused actions per step
                 plannerInterval: 3, // Check progress frequently
-                maxInputTokens: 1500 // Reduced tokens for lean prompt
+                maxInputTokens: 1500, // Reduced tokens for lean prompt
+                timeout: this.timeoutMinutes * 60 // Set timeout in seconds
             });
 
             // Race between the task and timeout

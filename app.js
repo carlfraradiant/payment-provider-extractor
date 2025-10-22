@@ -32,7 +32,7 @@ app.use(express.static('public'));
 const activeSessions = new Map();
 
 // Helper: schedule a hard timeout for session records to stop endless polling
-function scheduleSessionTimeout(sessionId, minutes = 2.5, slackMs = 2000) {
+function scheduleSessionTimeout(sessionId, minutes = 3.5, slackMs = 2000) {
     const timeoutMs = Math.round(minutes * 60 * 1000 + slackMs);
     setTimeout(() => {
         const session = activeSessions.get(sessionId);
@@ -109,7 +109,7 @@ app.post('/api/analyze', async (req, res) => {
         });
 
         // Ensure polling callers stop after hard timeout
-        scheduleSessionTimeout(sessionId, 2.5, 2000);
+        scheduleSessionTimeout(sessionId, 3.5, 2000);
 
         // Start analysis in background
         setImmediate(async () => {
@@ -120,7 +120,7 @@ app.post('/api/analyze', async (req, res) => {
                 console.log(`OPENAI_API_KEY (first 5 chars): ${process.env.OPENAI_API_KEY ? process.env.OPENAI_API_KEY.substring(0, 5) + '...' : 'NOT SET'}`);
                 console.log(`NODE_ENV: ${process.env.NODE_ENV || 'NOT SET'}`);
                 
-                const extractor = new CheckoutURLExtractor(2.5); // 2.5 minute maximum timeout for safety, targeting 5-10 seconds
+                const extractor = new CheckoutURLExtractor(3.5); // 3.5 minute maximum timeout for French webshops with account creation
                 console.log("✅ CheckoutURLExtractor initialized successfully");
                 const progressCallback = new WebProgressCallback(sessionId);
                 
@@ -268,14 +268,14 @@ app.post('/api/payment/extract', async (req, res) => {
         });
 
         // Ensure polling callers stop after hard timeout
-        scheduleSessionTimeout(sessionId, 2.5, 2000);
+        scheduleSessionTimeout(sessionId, 3.5, 2000);
 
         // Start analysis in background
         setImmediate(async () => {
             try {
                 console.log(`🚀 Starting payment extraction for: ${websiteUrl}`);
                 
-                const extractor = new PaymentURLExtractorV2(2.5); // 2.5 minute maximum timeout
+                const extractor = new PaymentURLExtractorV2(3.5); // 3.5 minute maximum timeout for French webshops with account creation
                 console.log("✅ PaymentURLExtractorV2 initialized successfully");
                 
                 const progressCallback = new WebProgressCallback(sessionId);
@@ -392,7 +392,7 @@ app.get('/api/payment/:encoded_url(*)', async (req, res) => {
         console.log(`🚀 Starting SYNCHRONOUS payment extraction for: ${checkoutUrl}`);
         
         try {
-            const extractor = new PaymentURLExtractorV2(2.5); // 2.5 minute maximum timeout
+            const extractor = new PaymentURLExtractorV2(3.5); // 3.5 minute maximum timeout for French webshops with account creation
             console.log("✅ PaymentURLExtractorV2 initialized successfully");
             
             const progressCallback = new WebProgressCallback(sessionId);
@@ -525,7 +525,7 @@ app.get('/api/url/:encoded_url(*)', async (req, res) => {
         console.log(`🚀 Starting SYNCHRONOUS direct API analysis for: ${websiteUrl}`);
         
         try {
-            const extractor = new CheckoutURLExtractor(2.5); // 2.5 minute maximum timeout
+            const extractor = new CheckoutURLExtractor(3.5); // 3.5 minute maximum timeout for French webshops with account creation
             console.log("✅ CheckoutURLExtractor initialized successfully");
             
             const progressCallback = new WebProgressCallback(sessionId);

@@ -7,7 +7,7 @@ class PaymentURLExtractorV2 {
      * fill out forms with locale-specific data, and extract the payment gateway URL.
      */
 
-    constructor(timeoutMinutes = 2) {
+    constructor(timeoutMinutes = 3.5) { // 3.5 minutes for French webshops with account creation
         const apiKey = process.env.HYPERBROWSER_API_KEY;
         if (!apiKey) {
             console.error("❌ HYPERBROWSER_API_KEY environment variable is required but not found.");
