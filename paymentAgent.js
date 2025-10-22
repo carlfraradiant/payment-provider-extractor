@@ -354,6 +354,9 @@ SCREENSHOT_READY: Yes
             const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
+                llm: process.env.OPENAI_LLM || "gpt-4o", // Use gpt-4o for best speed and performance
+                plannerLlm: process.env.OPENAI_LLM || "gpt-4o-mini", // Use gpt-4o-mini for planner for speed
+                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-4o-mini", // Use gpt-4o-mini for page extraction for speed
                 maxSteps: 12, // Focused steps for simple task
                 maxFailures: 3, // Minimal failures for speed
                 useVision: true, // Enable vision for form recognition
@@ -362,6 +365,8 @@ SCREENSHOT_READY: Yes
                 maxActionsPerStep: 4, // Focused actions per step
                 plannerInterval: 3, // Check progress frequently
                 maxInputTokens: 1500, // Reduced tokens for lean prompt
+                useCustomApiKeys: true,
+                apiKeys: { openai: process.env.OPENAI_API_KEY },
                 timeout: this.timeoutMinutes * 60 // Set timeout in seconds
             });
 

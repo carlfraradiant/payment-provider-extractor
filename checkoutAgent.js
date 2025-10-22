@@ -302,7 +302,7 @@ START NOW: ${websiteUrl}
             const hyperAgentPromise = this.hb.agents.hyperAgent.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
-                llm: process.env.OPENAI_LLM || "gpt-5",
+                llm: process.env.OPENAI_LLM || "gpt-4o", // Use gpt-4o for best speed and performance
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
                 timeout: this.timeoutMinutes * 60, // Set timeout in seconds
