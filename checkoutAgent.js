@@ -101,38 +101,32 @@ class CheckoutURLExtractor {
      */
     _getItalianTaskDescription(websiteUrl) {
         return `
-You are a FAST e-commerce checkout agent specialized for Italian webshops. Start at ${websiteUrl}. Goal: add ONE product to cart and reach the final checkout page quickly, then output the checkout URL and visible payment providers.
+ULTRA-FAST Italian e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
 
-Execute this strictly:
-1) Close popups immediately (Accetta/OK/X/Chiudi; multilingual variants allowed). Look for cookie banners and consent dialogs first.
-2) Open a product page (first obvious product or from Shop/Prodotti/Collezione). Avoid pages that are out of stock.
-3) FIND AND CLICK THE ADD-TO-CART BUTTON RELIABLY:
-   - If the button is not visible, SCROLL the page: use small incremental scrolls down the page until buttons and forms become visible; if you reach the bottom without finding it, scroll back up a little and try again.
-   - Recognize Italian labels for add-to-cart: "Aggiungi al carrello", "Aggiungi", "Acquista", "Compra", "Aggiungi al cestino", "Metti nel carrello", "Aggiungi alla borsa", "Aggiungi al paniere".
-   - Also detect common selectors/attributes: buttons or inputs with type=submit near product forms; ids/classes containing add-to-cart, add, cart, purchase, buy; Shopify examples like button[name="add"], #AddToCart, [data-testid*="add-to-cart"].
-   - If variants (taglia/colore) are REQUIRED, quickly choose the first available option for each required selector before clicking add to cart.
-   - Ensure QUANTITÀ = 1.
-4) Confirm the cart drawer or cart page shows exactly one item. If the cart is empty, try the add-to-cart step again once after a short scroll and wait.
-5) Open the cart and click "Checkout" / "Procedi al checkout" / localized equivalents ("Cassa", "Vai alla cassa", "Procedi", "Finalizza ordine", "Completa ordine").
-6) On the checkout page, copy the full URL and return.
+ITALIAN PATTERNS:
+- Italian labels: "Aggiungi al carrello", "Acquista", "Compra", "Cassa", "Procedi al checkout"
+- Variants: "taglia/colore" - choose first available
+- Ensure QUANTITÀ = 1
 
-Speed rules:
-- Be decisive and fast. Avoid optional choices unless mandatory.
-- Always close popups before continuing.
-- Only add a single item.
-- If stuck, refresh and retry once.
+EXECUTE RAPIDLY:
+1) Close popups (Accetta/OK/X/Chiudi)
+2) Find product page (Shop/Prodotti/Collezione)
+3) Add to cart: "Aggiungi al carrello", "Acquista", "Compra" - ensure QUANTITÀ = 1
+4) Go to cart: "Cassa", "Procedi al checkout", "Finalizza ordine"
+5) Extract checkout URL and payment providers
 
-Report format (exact keys):
-WEBSITE_NAME: [domain or site name]
-PRODUCT_ADDED: [product name or Yes]
-CHECKOUT_URL: [full checkout URL]
-PAYMENT_PROVIDERS: [comma-separated list]
-STEPS_COMPLETED: [short summary]
-ISSUES_ENCOUNTERED: [problems if any]
+SPEED: Be decisive, avoid optional choices, single item only.
+
+Output:
+WEBSITE_NAME: [domain]
+PRODUCT_ADDED: [product name]
+CHECKOUT_URL: [full URL]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [summary]
+ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
 
-START NOW.
-Website URL: ${websiteUrl}
+START NOW: ${websiteUrl}
         `.trim();
     }
 
@@ -141,54 +135,33 @@ Website URL: ${websiteUrl}
      */
     _getFrenchTaskDescription(websiteUrl) {
         return `
-You are a FAST e-commerce checkout agent specialized for French webshops. Start at ${websiteUrl}. Goal: add ONE product to cart and reach the final checkout page quickly, then output the checkout URL and visible payment providers.
+ULTRA-FAST French e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
 
-CRITICAL FRENCH E-COMMERCE PATTERNS:
-- Most French sites require account creation before checkout
-- Look for "Commander sans compte", "Acheter en tant qu'invité", or "Poursuivre sans compte" for guest checkout
-- If account creation is mandatory, create one quickly with test data
-- French sites often have complex navigation and multiple steps
+FRENCH PATTERNS:
+- Account creation often required: look for "Commander sans compte", "Acheter en tant qu'invité" first
+- If account needed: Email: test@example.com, Password: Test123456, Accept CGV
+- French labels: "Ajouter au panier", "Acheter", "Commander", "Caisse", "Finaliser la commande"
 
-Execute this strictly:
-1) Close popups immediately (Accepter/OK/X/Fermer; multilingual variants allowed). Look for cookie banners and consent dialogs first.
-2) Open a product page (first obvious product or from Shop/Produits/Collection). Avoid pages that are out of stock.
-3) FIND AND CLICK THE ADD-TO-CART BUTTON RELIABLY:
-   - If the button is not visible, SCROLL the page: use small incremental scrolls down the page until buttons and forms become visible; if you reach the bottom without finding it, scroll back up a little and try again.
-   - Recognize French labels for add-to-cart: "Ajouter au panier", "Ajouter", "Acheter", "Ajouter au caddy", "Mettre dans le panier", "Ajouter à la corbeille", "Ajouter au sac", "Ajouter au chariot", "Commander".
-   - Also detect common selectors/attributes: buttons or inputs with type=submit near product forms; ids/classes containing add-to-cart, add, cart, purchase, buy; Shopify examples like button[name="add"], #AddToCart, [data-testid*="add-to-cart"].
-   - If variants (taille/couleur) are REQUIRED, quickly choose the first available option for each required selector before clicking add to cart.
-   - Ensure QUANTITÉ = 1.
-4) Confirm the cart drawer or cart page shows exactly one item. If the cart is empty, try the add-to-cart step again once after a short scroll and wait.
-5) Open the cart and click "Checkout" / "Procéder au checkout" / localized equivalents ("Caisse", "Aller à la caisse", "Finaliser la commande", "Valider la commande", "Terminer la commande", "Commander").
-6) HANDLE ACCOUNT CREATION IF REQUIRED:
-   - If prompted to create account, look for "Commander sans compte", "Acheter en tant qu'invité", "Poursuivre sans compte" first
-   - If guest checkout not available, create account quickly with:
-     * Email: test@example.com
-     * Password: Test123456
-     * Confirm password: Test123456
-     * Accept CGV/terms if required
-   - Look for "Créer un compte", "S'inscrire", "Inscription" buttons
-7) On the checkout page, copy the full URL and return.
+EXECUTE RAPIDLY:
+1) Close popups (Accepter/OK/X/Fermer)
+2) Find product page (Shop/Produits/Collection)
+3) Add to cart: "Ajouter au panier", "Acheter", "Commander" - ensure QUANTITÉ = 1
+4) Go to cart: "Caisse", "Finaliser la commande", "Commander"
+5) Handle account creation if required (guest checkout preferred)
+6) Extract checkout URL and payment providers
 
-FRENCH-SPECIFIC SPEED RULES:
-- Be decisive and fast. Avoid optional choices unless mandatory.
-- Always close popups before continuing.
-- Only add a single item.
-- If account creation is required, do it quickly with test data
-- Look for guest checkout options first before creating account
-- If stuck, refresh and retry once.
+SPEED: Be decisive, avoid optional choices, single item only.
 
-Report format (exact keys):
-WEBSITE_NAME: [domain or site name]
-PRODUCT_ADDED: [product name or Yes]
-CHECKOUT_URL: [full checkout URL]
-PAYMENT_PROVIDERS: [comma-separated list]
-STEPS_COMPLETED: [short summary]
-ISSUES_ENCOUNTERED: [problems if any]
+Output:
+WEBSITE_NAME: [domain]
+PRODUCT_ADDED: [product name]
+CHECKOUT_URL: [full URL]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [summary]
+ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
 
-START NOW.
-Website URL: ${websiteUrl}
+START NOW: ${websiteUrl}
         `.trim();
     }
 
@@ -197,48 +170,33 @@ Website URL: ${websiteUrl}
      */
     _getEuropeanTaskDescription(websiteUrl) {
         return `
-You are a FAST e-commerce checkout agent specialized for European webshops. Start at ${websiteUrl}. Goal: add ONE product to cart and reach the final checkout page quickly, then output the checkout URL and visible payment providers.
+ULTRA-FAST European e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
 
-EUROPEAN E-COMMERCE PATTERNS:
-- European sites often require account creation or offer guest checkout
-- Look for "Guest checkout", "Continue without account", "Buy as guest" options
-- European sites may have GDPR cookie banners and consent dialogs
-- Multi-language support is common across European sites
+EUROPEAN PATTERNS:
+- GDPR cookie banners: Accept/OK/X/Close
+- Guest checkout preferred: "Guest checkout", "Continue without account", "Buy as guest"
+- Multi-language labels: "Add to cart", "Kaufen", "Køb", "Comprar", "Añadir al carrito"
 
-Execute this strictly:
-1) Close popups immediately (Accept/OK/X/Close; multilingual variants allowed). Look for cookie banners and consent dialogs first.
-2) Open a product page (first obvious product or from Shop/Products/Collection). Avoid pages that are out of stock.
-3) FIND AND CLICK THE ADD-TO-CART BUTTON RELIABLY:
-   - If the button is not visible, SCROLL the page: use small incremental scrolls down the page until buttons and forms become visible; if you reach the bottom without finding it, scroll back up a little and try again.
-   - Accept multilingual labels for add-to-cart: "Add to cart", "Add to bag", "Add to basket", "Buy", "Comprar", "Acheter", "Ajouter au panier", "In den Warenkorb", "Aggiungi al carrello", "Dodaj do koszyka", "Køb", "Læg i kurv", "Tilføj til kurv", "Køb nu", "Kaufen", "In winkelwagen", "Añadir al carrito", "Comprar".
-   - Also detect common selectors/attributes: buttons or inputs with type=submit near product forms; ids/classes containing add-to-cart, add, cart, purchase, buy; Shopify examples like button[name="add"], #AddToCart, [data-testid*="add-to-cart"].
-   - If variants (size/color) are REQUIRED, quickly choose the first available option for each required selector before clicking add to cart.
-   - Ensure QUANTITY = 1.
-4) Confirm the cart drawer or cart page shows exactly one item. If the cart is empty, try the add-to-cart step again once after a short scroll and wait.
-5) Open the cart and click "Checkout" / "Proceed to checkout" / localized equivalents ("Kasse", "Zur Kasse", "Cassa", "Pagar", "Finaliser la commande", "Do kasy", "Afrekenen", "Kassa", "Checkout").
-6) HANDLE ACCOUNT CREATION IF REQUIRED:
-   - Look for "Guest checkout", "Continue without account", "Buy as guest" first
-   - If account creation is mandatory, create one quickly with test data
-7) On the checkout page, copy the full URL and return.
+EXECUTE RAPIDLY:
+1) Close popups (Accept/OK/X/Close)
+2) Find product page (Shop/Products/Collection)
+3) Add to cart: "Add to cart", "Kaufen", "Køb", "Comprar" - ensure QUANTITY = 1
+4) Go to cart: "Checkout", "Kasse", "Køb nu", "Pagar"
+5) Handle account creation if required (guest checkout preferred)
+6) Extract checkout URL and payment providers
 
-Speed rules:
-- Be decisive and fast. Avoid optional choices unless mandatory.
-- Always close popups before continuing.
-- Only add a single item.
-- If account creation is required, do it quickly with test data
-- If stuck, refresh and retry once.
+SPEED: Be decisive, avoid optional choices, single item only.
 
-Report format (exact keys):
-WEBSITE_NAME: [domain or site name]
-PRODUCT_ADDED: [product name or Yes]
-CHECKOUT_URL: [full checkout URL]
-PAYMENT_PROVIDERS: [comma-separated list]
-STEPS_COMPLETED: [short summary]
-ISSUES_ENCOUNTERED: [problems if any]
+Output:
+WEBSITE_NAME: [domain]
+PRODUCT_ADDED: [product name]
+CHECKOUT_URL: [full URL]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [summary]
+ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
 
-START NOW.
-Website URL: ${websiteUrl}
+START NOW: ${websiteUrl}
         `.trim();
     }
 
@@ -247,38 +205,27 @@ Website URL: ${websiteUrl}
      */
     _getDefaultTaskDescription(websiteUrl) {
         return `
-You are a FAST e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach the final checkout page quickly, then output the checkout URL and visible payment providers.
+ULTRA-FAST e-commerce checkout agent. Start at ${websiteUrl}. Goal: add ONE product to cart and reach checkout page in under 30 seconds.
 
-Do this strictly:
-1) Close popups immediately (Accept/OK/X/Close; multilingual variants allowed). Look for cookie banners and consent dialogs first.
-2) Open a product page (first obvious product or from Shop/Products/Collection). Avoid pages that are out of stock.
-3) FIND AND CLICK THE ADD-TO-CART BUTTON RELIABLY:
-   - If the button is not visible, SCROLL the page: use small incremental scrolls down the page until buttons and forms become visible; if you reach the bottom without finding it, scroll back up a little and try again.
-   - Accept multilingual labels for add-to-cart: "Add to cart", "Add to bag", "Add to basket", "Buy", "Comprar", "Acheter", "Ajouter au panier", "In den Warenkorb", "Aggiungi al carrello", "Dodaj do koszyka", "Dodaj do koszyka", "Køb", "Læg i kurv", "Tilføj til kurv", "Køb nu", "Dodaj do koszyka", "Dodaj do košíku".
-   - Also detect common selectors/attributes: buttons or inputs with type=submit near product forms; ids/classes containing add-to-cart, add, cart, purchase, buy; Shopify examples like button[name="add"], #AddToCart, [data-testid*="add-to-cart"].
-   - If variants (size/color) are REQUIRED, quickly choose the first available option for each required selector before clicking add to cart.
-   - Ensure QUANTITY = 1.
-4) Confirm the cart drawer or cart page shows exactly one item. If the cart is empty, try the add-to-cart step again once after a short scroll and wait.
-5) Open the cart and click "Checkout" / "Proceed to checkout" / localized equivalents ("Kasse", "Zur Kasse", "Cassa", "Pagar", "Finaliser la commande", "Do kasy").
-6) On the checkout page, copy the full URL and return.
+EXECUTE RAPIDLY:
+1) Close popups (Accept/OK/X/Close)
+2) Find product page (Shop/Products/Collection)
+3) Add to cart: "Add to cart", "Buy", "Comprar", "Acheter" - ensure QUANTITY = 1
+4) Go to cart: "Checkout", "Proceed to checkout", "Cassa", "Pagar"
+5) Extract checkout URL and payment providers
 
-Speed rules:
-- Be decisive and fast. Avoid optional choices unless mandatory.
-- Always close popups before continuing.
-- Only add a single item.
-- If stuck, refresh and retry once.
+SPEED: Be decisive, avoid optional choices, single item only.
 
-Report format (exact keys):
-WEBSITE_NAME: [domain or site name]
-PRODUCT_ADDED: [product name or Yes]
-CHECKOUT_URL: [full checkout URL]
-PAYMENT_PROVIDERS: [comma-separated list]
-STEPS_COMPLETED: [short summary]
-ISSUES_ENCOUNTERED: [problems if any]
+Output:
+WEBSITE_NAME: [domain]
+PRODUCT_ADDED: [product name]
+CHECKOUT_URL: [full URL]
+PAYMENT_PROVIDERS: [comma-separated]
+STEPS_COMPLETED: [summary]
+ISSUES_ENCOUNTERED: [any]
 SCREENSHOT_READY: Yes
 
-START NOW.
-Website URL: ${websiteUrl}
+START NOW: ${websiteUrl}
         `.trim();
     }
 
@@ -306,7 +253,7 @@ Website URL: ${websiteUrl}
     }
 
     /**
-     * Run the HyperAgent task with session timeout management
+     * Run the HyperAgent task with session timeout management for maximum speed
      */
     async _runWithSessionTimeout(taskDescription, sessionOptions, progressCallback = null) {
         let sessionId = null;
@@ -347,25 +294,15 @@ Website URL: ${websiteUrl}
             });
 
             if (progressCallback) {
-                progressCallback("🤖 Starting browser automation task...");
+                progressCallback("🚀 Starting HyperAgent task for maximum speed...");
                 progressCallback(`⏰ Timeout protection: Session will be stopped after ${this.timeoutMinutes} minutes to prevent excessive credit usage`);
             }
 
-            // Start Browser Use task using our own OpenAI keys
-            const browserTaskPromise = this.hb.agents.browserUse.startAndWait({
+            // Start HyperAgent task using our own OpenAI keys for maximum speed
+            const hyperAgentPromise = this.hb.agents.hyperAgent.startAndWait({
                 task: taskDescription,
                 sessionId: sessionId,
                 llm: process.env.OPENAI_LLM || "gpt-5",
-                plannerLlm: process.env.OPENAI_LLM || "gpt-5-mini",
-                pageExtractionLlm: process.env.OPENAI_LLM || "gpt-5-mini",
-                maxSteps: 28,
-                maxFailures: 3,
-                useVision: true,
-                validateOutput: false,
-                maxActionsPerStep: 2,
-                plannerInterval: 3,
-                maxInputTokens: 2000,
-                keepBrowserOpen: false,
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
                 timeout: this.timeoutMinutes * 60, // Set timeout in seconds
@@ -373,7 +310,7 @@ Website URL: ${websiteUrl}
             });
 
             // Race between the task and timeout
-            const result = await Promise.race([browserTaskPromise, timeoutPromise]);
+            const result = await Promise.race([hyperAgentPromise, timeoutPromise]);
 
             // Clear timeout since we completed successfully
             if (timeoutId) {
@@ -381,7 +318,7 @@ Website URL: ${websiteUrl}
             }
 
             if (progressCallback) {
-                progressCallback("✅ Browser task completed successfully!");
+                progressCallback("✅ HyperAgent task completed successfully!");
             }
 
             // Capture screenshot before stopping the session
