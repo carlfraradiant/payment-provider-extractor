@@ -352,17 +352,78 @@ curl "https://payment-provider-extractor.vercel.app/api/session/YOUR_SESSION_ID"
   }
 }</pre></div>
 
-            <div class="note">
-                <h4>🇫🇷 French Shopify Specialization</h4>
-                <p>This endpoint is specifically designed for French Shopify stores and includes:</p>
-                <ul>
-                    <li>French popup detection and handling</li>
-                    <li>French cookie banner management</li>
-                    <li>Optimized for French e-commerce navigation patterns</li>
-                    <li>Enhanced payment provider detection for French markets</li>
-                </ul>
+                <div class="note">
+                    <h4>🇫🇷 French Shopify Specialization</h4>
+                    <p>This endpoint is specifically designed for French Shopify stores and includes:</p>
+                    <ul>
+                        <li>French popup detection and handling</li>
+                        <li>French cookie banner management</li>
+                        <li>Optimized for French e-commerce navigation patterns</li>
+                        <li>Enhanced payment provider detection for French markets</li>
+                    </ul>
+                </div>
             </div>
-        </div>
+
+            <div class="section">
+                <h2>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                    French Shopify - GET Endpoint (Simple)
+                </h2>
+
+                <h3>GET /api/france/shopify/:encoded_url</h3>
+                <p>Simple GET endpoint for French Shopify stores. Perfect for testing with n8n, Postman, or any HTTP client. Just URL-encode the target website and include it in the path.</p>
+                <div class="code-block"><pre><span class="method get">GET</span><span class="endpoint">/api/france/shopify/:encoded_url</span></pre></div>
+                
+                <h4>Parameters:</h4>
+                <ul>
+                    <li><strong>encoded_url</strong> (path parameter) - The French Shopify website URL to analyze (must be URL-encoded)</li>
+                </ul>
+
+                <h4>Example URLs:</h4>
+                <div class="example-url">https://payment-provider-extractor.vercel.app/api/france/shopify/https%3A//elegance-emiratie.com</div>
+                <div class="example-url">https://payment-provider-extractor.vercel.app/api/france/shopify/https%3A//bonparfumeur.com</div>
+                <div class="example-url">https://payment-provider-extractor.vercel.app/api/france/shopify/https%3A//louyetu.fr</div>
+
+                <h4>Features:</h4>
+                <ul>
+                    <li><strong>Simple GET request:</strong> No JSON body required</li>
+                    <li><strong>URL-encoded path:</strong> Just encode the target URL and put it in the path</li>
+                    <li><strong>French-optimized:</strong> Handles French popups, cookies, and navigation</li>
+                    <li><strong>Shopify-specific:</strong> Optimized for Shopify store structure</li>
+                    <li><strong>Fast execution:</strong> 4-minute timeout with optimized parameters</li>
+                    <li><strong>Perfect for n8n:</strong> Easy to configure in automation tools</li>
+                </ul>
+
+                <h4>Response Example:</h4>
+                <div class="code-block"><pre>{
+  "session_id": "france-shopify-abc123",
+  "status": "completed",
+  "message": "French Shopify checkout extraction completed",
+  "url": "https://elegance-emiratie.com",
+  "start_time": "2024-01-15T10:30:00.000Z",
+  "end_time": "2024-01-15T10:32:45.000Z",
+  "result": {
+    "website_name": "elegance-emiratie.com",
+    "product_added": "Sample Product",
+    "checkout_url": "https://elegance-emiratie.com/checkout",
+    "payment_providers": ["Shopify Payments", "Shop Pay", "PayPal", "Visa", "Mastercard"],
+    "steps_completed": "Added product to cart and reached checkout",
+    "issues_encountered": "None"
+  }
+}</pre></div>
+
+                <div class="note">
+                    <h4>🔧 n8n Configuration</h4>
+                    <p>For n8n, configure your HTTP Request node as follows:</p>
+                    <ul>
+                        <li><strong>Method:</strong> GET</li>
+                        <li><strong>URL:</strong> <code>https://payment-provider-extractor.vercel.app/api/france/shopify/{{ $json.encoded_url }}</code></li>
+                        <li><strong>Authentication:</strong> None</li>
+                        <li><strong>Body:</strong> Not needed for GET requests</li>
+                    </ul>
+                    <p>Make sure to URL-encode your target website URL before passing it to the endpoint.</p>
+                </div>
+            </div>
 
         <div class="section">
             <h2>

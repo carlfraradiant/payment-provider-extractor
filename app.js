@@ -88,6 +88,119 @@ app.get('/paymenturlfinder', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'paymenturlfinder.html'));
 });
 
+// French Shopify GET endpoint: GET /api/france/shopify/:encoded_url
+app.get('/api/france/shopify/:encoded_url(*)', async (req, res) => {
+    try {
+        const encodedUrl = req.params.encoded_url;
+        
+        if (!encodedUrl || !encodedUrl.trim()) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        // Decode the URL
+        const websiteUrl = decodeURIComponent(encodedUrl);
+        
+        if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
+            return res.status(400).json({ error: 'URL must start with http:// or https://' });
+        }
+
+        const sessionId = uuidv4();
+
+        // Store session info
+        activeSessions.set(sessionId, {
+            url: websiteUrl,
+            status: 'starting',
+            start_time: new Date().toISOString(),
+            progress: []
+        });
+
+        console.log(`🇫🇷 Starting French Shopify checkout extraction for: ${websiteUrl}`);
+
+        // Start the extraction process
+        const extractor = new FranceShopifyCheckoutExtractor(4); // 4 minutes timeout
+        
+        // Schedule session timeout
+        scheduleSessionTimeout(sessionId, 4); // 4 minutes timeout
+
+        try {
+            const result = await extractor.extractCheckoutURLWithStreaming(websiteUrl, (message) => {
+                // Update progress
+                if (activeSessions.has(sessionId)) {
+                    activeSessions.get(sessionId).progress.push({
+                        message,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                // Emit progress via Socket.IO if available
+                if (io) {
+                    io.emit('analysis_progress', { session_id: sessionId, message });
+                }
+            });
+
+            // Update session status
+            if (activeSessions.has(sessionId)) {
+                activeSessions.get(sessionId).status = 'completed';
+                activeSessions.get(sessionId).end_time = new Date().toISOString();
+            }
+
+            // Emit completion via Socket.IO if available
+            if (io) {
+                io.emit('analysis_complete', { session_id: sessionId, result });
+            }
+
+            // Return success response
+            res.json({
+                session_id: sessionId,
+                status: 'completed',
+                message: 'French Shopify checkout extraction completed',
+                url: websiteUrl,
+                start_time: activeSessions.get(sessionId)?.start_time,
+                end_time: activeSessions.get(sessionId)?.end_time,
+                result: result
+            });
+
+        } catch (error) {
+            console.error('Error in French Shopify checkout extraction:', error);
+            
+            const endTime = new Date().toISOString();
+            
+            if (activeSessions.has(sessionId)) {
+                activeSessions.get(sessionId).status = 'error';
+                activeSessions.get(sessionId).end_time = endTime;
+            }
+            
+            const errorMessage = `Error: ${error.message}`;
+            if (activeSessions.get(sessionId)) {
+                activeSessions.get(sessionId).progress.push({
+                    message: errorMessage,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            
+            if (io) {
+                io.emit('analysis_error', { session_id: sessionId, error: error.message });
+            }
+
+            // Return error response
+            res.status(500).json({
+                session_id: sessionId,
+                status: 'error',
+                message: 'French Shopify checkout extraction failed',
+                url: websiteUrl,
+                start_time: activeSessions.get(sessionId)?.start_time,
+                end_time: endTime,
+                error: error.message,
+                progress: activeSessions.get(sessionId)?.progress || []
+            });
+        }
+
+    } catch (error) {
+        console.error('Error in French Shopify GET endpoint:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // French Shopify page
 app.get('/france-shopify', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'france-shopify.html'));
