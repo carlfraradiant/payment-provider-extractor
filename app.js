@@ -88,6 +88,11 @@ app.get('/paymenturlfinder', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'paymenturlfinder.html'));
 });
 
+// French Shopify page
+app.get('/france-shopify', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'france-shopify.html'));
+});
+
 
 app.post('/api/analyze', async (req, res) => {
     try {
