@@ -247,6 +247,7 @@
             <div class="links">
                 <a href="/">Checkout</a>
                 <a href="/paymenturlfinder">Payment</a>
+                <a href="/france-shopify">French Shopify</a>
                 <a href="/api">API / Docs</a>
             </div>
         </div>
@@ -306,6 +307,60 @@ curl "https://payment-provider-extractor.vercel.app/api/session/YOUR_SESSION_ID"
   },
   "progress": [...]
 }</pre>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                French Shopify - POST Endpoint
+            </h2>
+
+            <h3>POST /api/france/shopify/analyze</h3>
+            <p>Specialized endpoint for French Shopify stores. Optimized for French e-commerce websites with enhanced popup handling and French-specific navigation.</p>
+            <div class="code-block"><pre><span class="method post">POST</span><span class="endpoint">/api/france/shopify/analyze</span></pre></div>
+            
+            <h4>Request Body:</h4>
+            <div class="code-block"><pre>{
+  "url": "https://example.myshopify.com"
+}</pre></div>
+
+            <h4>Features:</h4>
+            <ul>
+                <li><strong>French-optimized:</strong> Handles French popups, cookies, and navigation</li>
+                <li><strong>Shopify-specific:</strong> Optimized for Shopify store structure</li>
+                <li><strong>Fast execution:</strong> 4-minute timeout with optimized parameters</li>
+                <li><strong>Popup handling:</strong> Automatically closes French popups and overlays</li>
+                <li><strong>Payment detection:</strong> Identifies Shopify Payments, Shop Pay, and other providers</li>
+            </ul>
+
+            <h4>Response Example:</h4>
+            <div class="code-block"><pre>{
+  "session_id": "france-shopify-abc123",
+  "status": "completed",
+  "message": "French Shopify checkout extraction completed",
+  "url": "https://example.myshopify.com",
+  "start_time": "2024-01-15T10:30:00.000Z",
+  "end_time": "2024-01-15T10:32:45.000Z",
+  "result": {
+    "website_name": "example.myshopify.com",
+    "product_added": "Sample Product",
+    "checkout_url": "https://example.myshopify.com/checkout",
+    "payment_providers": ["Shopify Payments", "Shop Pay", "PayPal", "Visa", "Mastercard"],
+    "steps_completed": "Added product to cart and reached checkout",
+    "issues_encountered": "None"
+  }
+}</pre></div>
+
+            <div class="note">
+                <h4>🇫🇷 French Shopify Specialization</h4>
+                <p>This endpoint is specifically designed for French Shopify stores and includes:</p>
+                <ul>
+                    <li>French popup detection and handling</li>
+                    <li>French cookie banner management</li>
+                    <li>Optimized for French e-commerce navigation patterns</li>
+                    <li>Enhanced payment provider detection for French markets</li>
+                </ul>
             </div>
         </div>
 
