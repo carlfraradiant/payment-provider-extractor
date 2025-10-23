@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>French Shopify Checkout Extractor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            color: #7f8c8d;
+            font-size: 1.1rem;
+        }
+
+        .flag {
+            font-size: 2rem;
+            margin-right: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .analyze-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .progress-item {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9rem;
+        }
+
+        .progress-item:last-child {
+            border-bottom: none;
+        }
+
+        .results-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e8;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .results-section.show {
+            display: block;
+        }
+
+        .result-item {
+            margin-bottom: 15px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .result-value {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #27ae60;
+            word-break: break-all;
+        }
+
+        .error-section {
+            margin-top: 30px;
+            padding: 20px;
+            background: #fdf2f2;
+            border-radius: 10px;
+            display: none;
+        }
+
+        .error-section.show {
+            display: block;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px 20px;
+            border-radius: 25px;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <a href="/" class="back-link">← Back to Main</a>
+    
+    <div class="container">
+        <div class="header">
+            <h1><span class="flag">🇫🇷</span>French Shopify Checkout Extractor</h1>
+            <p class="subtitle">Extract checkout URLs and payment providers from French Shopify stores</p>
+        </div>
+
+        <form id="franceShopifyForm">
+            <div class="form-group">
+                <label for="websiteUrl">French Shopify Store URL:</label>
+                <input type="url" id="websiteUrl" name="websiteUrl" placeholder="https://example-shop.myshopify.com" required>
+            </div>
+
+            <button type="submit" class="analyze-btn" id="analyzeBtn">
+                <span id="btnText">🚀 Extract Checkout URL</span>
+                <div id="btnSpinner" class="spinner" style="display: none;"></div>
+            </button>
+        </form>
+
+        <div class="progress-section" id="progressSection">
+            <h3>Progress:</h3>
+            <div class="progress-log" id="progressLog"></div>
+        </div>
+
+        <div class="results-section" id="resultsSection">
+            <h3>Results:</h3>
+            <div id="resultCard">
+                <div class="result-item">
+                    <div class="result-label">Website:</div>
+                    <div class="result-value" id="websiteName">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Product Added:</div>
+                    <div class="result-value" id="productAdded">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Checkout URL:</div>
+                    <div class="result-value" id="checkoutUrl">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Payment Providers:</div>
+                    <div class="result-value" id="paymentProviders">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Steps Completed:</div>
+                    <div class="result-value" id="stepsCompleted">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Issues:</div>
+                    <div class="result-value" id="issuesEncountered">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-section" id="errorSection">
+            <h3>Error:</h3>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Socket.IO
+            let socket = null;
+            try {
+                if (typeof io !== 'undefined') {
+                    socket = io();
+                }
+            } catch (error) {
+                console.log('Socket.io not available (production mode)');
+            }
+            let currentSessionId = null;
+
+            // DOM elements
+            const form = document.getElementById('franceShopifyForm');
+            const analyzeBtn = document.getElementById('analyzeBtn');
+            const btnText = document.getElementById('btnText');
+            const btnSpinner = document.getElementById('btnSpinner');
+            const progressSection = document.getElementById('progressSection');
+            const progressLog = document.getElementById('progressLog');
+            const resultsSection = document.getElementById('resultsSection');
+            const resultCard = document.getElementById('resultCard');
+            const errorSection = document.getElementById('errorSection');
+            const errorMessage = document.getElementById('errorMessage');
+
+            // Form submission
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const urlInput = document.getElementById('websiteUrl');
+                const url = urlInput.value;
+                
+                if (!url || !url.trim()) {
+                    showError('Please enter a valid French Shopify store URL');
+                    return;
+                }
+
+                startAnalysis(url);
+            });
+
+            function startAnalysis(url) {
+                // Reset UI
+                hideAllSections();
+                showProgress();
+                
+                // Disable form
+                analyzeBtn.disabled = true;
+                btnText.textContent = 'Analyzing...';
+                btnSpinner.style.display = 'block';
+
+                // Start analysis
+                fetch('/api/france/shopify/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ url })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.session_id) {
+                        currentSessionId = data.session_id;
+                        addProgressMessage('🇫🇷 French Shopify checkout extraction started...');
+                        
+                        // Start polling for results
+                        pollForResults();
+                    } else {
+                        showError(data.error || 'Failed to start analysis');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showError('Network error: ' + error.message);
+                });
+            }
+
+            function pollForResults() {
+                if (!currentSessionId) return;
+
+                fetch(`/api/session/${currentSessionId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'completed') {
+                        showResults(data.result);
+                    } else if (data.status === 'error') {
+                        showError(data.error || 'Analysis failed');
+                    } else {
+                        // Continue polling
+                        setTimeout(pollForResults, 2000);
+                    }
+                })
+                .catch(error => {
+                    console.error('Polling error:', error);
+                    showError('Failed to get results: ' + error.message);
+                });
+            }
+
+            function addProgressMessage(message) {
+                const progressItem = document.createElement('div');
+                progressItem.className = 'progress-item';
+                progressItem.textContent = message;
+                progressLog.appendChild(progressItem);
+                progressLog.scrollTop = progressLog.scrollHeight;
+            }
+
+            function showResults(result) {
+                hideAllSections();
+                showResultsSection();
+                
+                // Populate results
+                document.getElementById('websiteName').textContent = result.website_name || 'Unknown';
+                document.getElementById('productAdded').textContent = result.product_added || 'Unknown';
+                document.getElementById('checkoutUrl').textContent = result.checkout_url || 'Not found';
+                document.getElementById('paymentProviders').textContent = result.payment_providers ? result.payment_providers.join(', ') : 'Not found';
+                document.getElementById('stepsCompleted').textContent = result.steps_completed || 'Unknown';
+                document.getElementById('issuesEncountered').textContent = result.issues_encountered || 'None';
+
+                // Re-enable form
+                analyzeBtn.disabled = false;
+                btnText.textContent = '🚀 Extract Checkout URL';
+                btnSpinner.style.display = 'none';
+            }
+
+            function showError(message) {
+                hideAllSections();
+                showErrorSection();
+                errorMessage.textContent = message;
+
+                // Re-enable form
+                analyzeBtn.disabled = false;
+                btnText.textContent = '🚀 Extract Checkout URL';
+                btnSpinner.style.display = 'none';
+            }
+
+            function hideAllSections() {
+                progressSection.classList.remove('show');
+                resultsSection.classList.remove('show');
+                errorSection.classList.remove('show');
+            }
+
+            function showProgress() {
+                progressSection.classList.add('show');
+                progressLog.innerHTML = '';
+            }
+
+            function showResultsSection() {
+                resultsSection.classList.add('show');
+            }
+
+            function showErrorSection() {
+                errorSection.classList.add('show');
+            }
+
+            // Socket.IO event listeners (if available)
+            if (socket) {
+                socket.on('analysis_progress', (data) => {
+                    if (data.session_id === currentSessionId) {
+                        addProgressMessage(data.message);
+                    }
+                });
+
+                socket.on('analysis_complete', (data) => {
+                    if (data.session_id === currentSessionId) {
+                        showResults(data.result);
+                    }
+                });
+
+                socket.on('analysis_error', (data) => {
+                    if (data.session_id === currentSessionId) {
+                        showError(data.error);
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

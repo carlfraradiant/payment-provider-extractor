@@ -7,6 +7,7 @@ require('dotenv').config();
 
 const { CheckoutURLExtractor } = require('./checkoutAgent');
 const { PaymentURLExtractorV2 } = require('./paymentAgentV2'); // Updated to use HyperAgent version
+const { FranceShopifyCheckoutExtractor } = require('./franceShopifyAgent');
 
 const app = express();
 const server = http.createServer(app);
@@ -624,6 +625,106 @@ app.get('/api/url/:encoded_url(*)', async (req, res) => {
     }
 });
 
+// French Shopify checkout extraction API endpoint: POST /api/france/shopify/analyze
+app.post('/api/france/shopify/analyze', async (req, res) => {
+    try {
+        const { url } = req.body;
+        
+        if (!url || !url.trim()) {
+            return res.status(400).json({ error: 'URL is required' });
+        }
+
+        const sessionId = uuidv4();
+        const websiteUrl = url.trim();
+
+        // Store session info
+        activeSessions.set(sessionId, {
+            url: websiteUrl,
+            status: 'starting',
+            start_time: new Date().toISOString(),
+            progress: [],
+            result: null
+        });
+
+        // Ensure polling callers stop after hard timeout
+        scheduleSessionTimeout(sessionId, 4, 2000);
+
+        // Start analysis in background
+        setImmediate(async () => {
+            try {
+                console.log(`🇫🇷 Starting French Shopify checkout extraction for: ${websiteUrl}`);
+                
+                const extractor = new FranceShopifyCheckoutExtractor(4); // 4 minute timeout for Shopify
+                
+                const result = await extractor.extractCheckoutURLWithStreaming(websiteUrl, (message) => {
+                    const session = activeSessions.get(sessionId);
+                    if (session) {
+                        session.progress.push({
+                            message,
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        if (io) {
+                            io.emit('analysis_progress', { session_id: sessionId, message });
+                        }
+                    }
+                });
+
+                // Update session with result
+                const session = activeSessions.get(sessionId);
+                if (session) {
+                    session.status = 'completed';
+                    session.result = result;
+                    session.end_time = new Date().toISOString();
+                    session.progress.push({
+                        message: '✅ French Shopify checkout extraction completed!',
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (io) {
+                    io.emit('analysis_complete', { session_id: sessionId, result });
+                }
+
+            } catch (error) {
+                console.error('Error in French Shopify checkout extraction:', error);
+                
+                const session = activeSessions.get(sessionId);
+                const startTime = session ? session.start_time : new Date().toISOString();
+                const endTime = new Date().toISOString();
+                
+                if (session) {
+                    session.status = 'error';
+                    session.error = error.message;
+                    session.end_time = endTime;
+                    const errorMessage = `❌ French Shopify checkout extraction failed: ${error.message}`;
+                    session.progress.push({
+                        message: errorMessage,
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                
+                if (io) {
+                    io.emit('analysis_error', { session_id: sessionId, error: error.message });
+                }
+            }
+        });
+
+        // Return session ID immediately
+        res.json({
+            session_id: sessionId,
+            status: 'started',
+            message: 'French Shopify checkout extraction started',
+            url: websiteUrl,
+            start_time: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error('Error starting French Shopify checkout extraction:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // 404 handler
 app.use((req, res) => {
     res.status(404).json({ error: 'Endpoint not found' });
@@ -640,6 +741,7 @@ if (require.main === module) {
         console.log(`📱 Web interface: http://localhost:${PORT}`);
         console.log(`🔧 API endpoints:`);
         console.log(`   POST /api/analyze - Start website analysis`);
+        console.log(`   POST /api/france/shopify/analyze - French Shopify checkout extraction`);
         console.log(`   GET  /api/session/<id> - Get session status`);
         console.log(`   GET  /api/sessions - List all sessions`);
         console.log(`   GET  /health - Health check`);
