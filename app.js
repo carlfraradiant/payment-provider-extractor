@@ -100,8 +100,19 @@ app.get('/api/france/shopify/:encoded_url(*)', async (req, res) => {
         // Decode the URL
         const websiteUrl = decodeURIComponent(encodedUrl);
         
-        if (!websiteUrl.startsWith('http://') && !websiteUrl.startsWith('https://')) {
-            return res.status(400).json({ error: 'URL must start with http:// or https://' });
+        console.log(`🔍 Debug - Encoded URL: ${encodedUrl}`);
+        console.log(`🔍 Debug - Decoded URL: ${websiteUrl}`);
+        
+        // Enhanced URL validation
+        try {
+            const url = new URL(websiteUrl);
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+                console.log(`❌ Debug - Invalid protocol: ${url.protocol}`);
+                return res.status(400).json({ error: 'URL must start with http:// or https://' });
+            }
+        } catch (error) {
+            console.log(`❌ Debug - URL parsing error: ${error.message}`);
+            return res.status(400).json({ error: 'Invalid URL format' });
         }
 
         const sessionId = uuidv4();
