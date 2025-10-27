@@ -191,21 +191,13 @@ START: ${websiteUrl}
                 plannerLlm: "gpt-4o-mini", 
                 pageExtractionLlm: "gpt-4o-mini",
                 // Ultra-fast settings for simple Shopify flow
-                maxSteps: 20, // Very reduced for speed
+                maxSteps: 10, // Very reduced for speed
                 maxFailures: 3, // Fail fast
                 useVision: false,
                 validateOutput: false,
-                maxActionsPerStep: 4, // Very reduced for speed
+                maxActionsPerStep: 10, // Very reduced for speed
                 plannerInterval: 10,
                 maxInputTokens: 4096, // Reduced for speed
-
-                  // Rails
-                initialActions: [
-                { action: "press", key: "Escape" },
-                { action: "clickText", text: "Ajouter au panier|Acheter|Add to cart", regex: true },
-                { action: "clickText", text: "Commander|Panier|Checkout|Valider|Finaliser la commande|Procéder au paiement", regex: true }
-                ],
-                endWhenUrlMatches: "checkouts?|/checkout",
   
                 // Use custom API keys
                 useCustomApiKeys: true,
