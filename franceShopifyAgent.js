@@ -191,12 +191,12 @@ START: ${websiteUrl}
                 plannerLlm: "gpt-4o-mini", 
                 pageExtractionLlm: "gpt-4o-mini",
                 // Ultra-fast settings for simple Shopify flow
-                maxSteps: 10, // Very reduced for speed
+                maxSteps: 20, // Very reduced for speed
                 maxFailures: 3, // Fail fast
                 useVision: false,
                 validateOutput: false,
                 maxActionsPerStep: 4, // Very reduced for speed
-                plannerInterval: 16,
+                plannerInterval: 10,
                 maxInputTokens: 4096, // Reduced for speed
                 // Use custom API keys
                 useCustomApiKeys: true,
