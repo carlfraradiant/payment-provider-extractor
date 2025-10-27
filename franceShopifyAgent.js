@@ -187,9 +187,9 @@ START: ${websiteUrl}
                 task: taskDescription,
                 sessionId: sessionId,
                 // Use fast models
-                llm: "gpt-4.1",
-                plannerLlm: "gpt-4o-mini", 
-                pageExtractionLlm: "gpt-4o-mini",
+                llm: "gpt-4o",
+                plannerLlm: "gemini-2.0-flash", 
+                pageExtractionLlm: "gemini-2.0-flash",
                 // Ultra-fast settings for simple Shopify flow
                 maxSteps: 20, // Very reduced for speed
                 maxFailures: 3, // Fail fast
@@ -199,35 +199,6 @@ START: ${websiteUrl}
                 plannerInterval: 10,
                 maxInputTokens: 4096, // Reduced for speed
 
-                initialActions: [
-                    { send_keys: { keys: "Escape" } },
-                    { wait: { seconds: 0.3 } },
-                
-                    // Permalink shortcut (cheapest)
-                    { run_script: { script: `
-                      const a=[...document.querySelectorAll('a[href*="/products/"]')].map(x=>x.getAttribute('href'));
-                      const handle=(a.find(h=>/\\/products\\//.test(h))||'').split('/products/')[1]?.split(/[?#]/)[0];
-                      return {handle};
-                    `}},
-                    { run_script: { script: `
-                      if (!vars.handle) return;
-                      return fetch('/products/'+vars.handle+'.js').then(r=>r.json()).then(p=>({vid:p.variants?.[0]?.id||null, title:p.title}));
-                    `}},
-                    { run_script: { script: `
-                      if (vars.vid) { location.href = '/cart/'+vars.vid+':1'; return {navigating:true}; }
-                    `}},
-                    { click_element_by_selector: { selector: "button[name='checkout'], a[href*='/checkout']" } },
-                    { run_script: { script: "if (location.href.match(/\\/checkouts?\\b/)) return {DONE:true, url:location.href};" } },
-                
-                    // UI fallbacks if the above didn’t work instantly
-                    { click_element_by_text: { text: "Ajouter au panier", element_type: "button" } },
-                    { click_element_by_text: { text: "Acheter", element_type: "button" } },
-                    { click_element_by_selector: { selector: "button[name='add']" } },
-                    { click_element_by_text: { text: "Commander", element_type: "button" } },
-                    { click_element_by_selector: { selector: "button[name='checkout'], a[href*='/checkout']" } },
-                    { run_script: { script: "if (location.href.match(/\\/checkouts?\\b/)) return {DONE:true, url:location.href};" } }
-                  ],
-  
                 // Use custom API keys
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
