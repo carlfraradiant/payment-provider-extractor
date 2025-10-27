@@ -198,6 +198,15 @@ START: ${websiteUrl}
                 maxActionsPerStep: 4, // Very reduced for speed
                 plannerInterval: 10,
                 maxInputTokens: 4096, // Reduced for speed
+
+                  // Rails
+                initialActions: [
+                { action: "press", key: "Escape" },
+                { action: "clickText", text: "Ajouter au panier|Acheter|Add to cart", regex: true },
+                { action: "clickText", text: "Commander|Panier|Checkout|Valider|Finaliser la commande|Procéder au paiement", regex: true }
+                ],
+                endWhenUrlMatches: "checkouts?|/checkout",
+  
                 // Use custom API keys
                 useCustomApiKeys: true,
                 apiKeys: { openai: process.env.OPENAI_API_KEY },
