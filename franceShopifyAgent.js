@@ -187,11 +187,11 @@ START: ${websiteUrl}
                 task: taskDescription,
                 sessionId: sessionId,
                 // Use fast models
-                llm: "gpt-4o",
+                llm: "gpt-4.1",
                 plannerLlm: "gpt-4o-mini", 
                 pageExtractionLlm: "gpt-4o-mini",
                 // Ultra-fast settings for simple Shopify flow
-                maxSteps: 10, // Very reduced for speed
+                maxSteps: 20, // Very reduced for speed
                 maxFailures: 3, // Fail fast
                 useVision: false,
                 validateOutput: false,
