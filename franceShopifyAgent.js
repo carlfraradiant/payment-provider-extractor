@@ -187,7 +187,7 @@ START: ${websiteUrl}
                 task: taskDescription,
                 sessionId: sessionId,
                 // Use fast models
-                llm: "gpt-4o-mini",
+                llm: "gpt-4o",
                 plannerLlm: "gpt-4o-mini", 
                 pageExtractionLlm: "gpt-4o-mini",
                 // Ultra-fast settings for simple Shopify flow
