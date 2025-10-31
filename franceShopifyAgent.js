@@ -187,17 +187,17 @@ START: ${websiteUrl}
                 task: taskDescription,
                 sessionId: sessionId,
                 // Use fast models
-                llm: "gpt-4o",
-                plannerLlm: "gemini-2.0-flash", 
-                pageExtractionLlm: "gemini-2.0-flash",
+                llm: "gpt-4.1",
+                plannerLlm: "gpt-4.1-mini", 
+                pageExtractionLlm: "gpt-4.1-mini",
                 // Ultra-fast settings for simple Shopify flow
-                maxSteps: 20, // Very reduced for speed
+                maxSteps: 14, // Very reduced for speed
                 maxFailures: 3, // Fail fast
-                useVision: false,
+                useVision: true,
                 validateOutput: false,
-                maxActionsPerStep: 10, // Very reduced for speed
+                maxActionsPerStep: 3, // Very reduced for speed
                 plannerInterval: 10,
-                maxInputTokens: 4096, // Reduced for speed
+                maxInputTokens: 1800, // Reduced for speed
 
                 // Use custom API keys
                 useCustomApiKeys: true,
